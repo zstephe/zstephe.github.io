@@ -1,0 +1,128 @@
+rasgo redondeado
+trazos verticales u horizontales
+trazos oblicuos
+caracteres con ángulo agudo superior
+caracteres gorditos 
+tienen lineas redondas
+tienen trazos que se cruzan
+tienen trazos verticales paralelos
+tienen lineas horizontales rectas
+tienen puntos
+tienen elementos que no se tocan entre si
+tiene huecos en su interior
+tiene una solo trazo con distinto principio y final
+forme ronde du caractere
+caractere avec un rond
+caracteres avec un rond
+caracteres fermes
+3 caracteres
+orden alfabético de letras latinas. luego, selección de figuras griegas cerradas
+letras no latinas 
+hecho con 4 trazos
+caractere angle
+trazo o trazos y un punto
+1 o 2 cubei
+almeno 1 cuneo in diagonale
+tres líneas paralelas
+tres líneas horizontales paralelas
+líneas perpendiculares
+todos los carácter están cerrados, o tienen una parte cerrada.
+todos los carácter es tienen una línea vertical
+at least 3 paralele line
+2 caracteres
+1 caractere
+3 caracteres
+4 caracteres
+6 caracteres
+2 lignes secantes
+francais
+caracteres con trazos diagonales
+caracteres con trazos redondos
+caracteres sans angle
+caracteres avec une symetrie axiale verticale
+caracteres 1
+caracteres 3
+caracteres 4
+caracteres 5
+caractere avec un v
+caractere discontinu
+caracteres latin
+pequeño cabeza 
+fleches horizontales
+fleches verticales
+bipodes, tripodes et plus
+one peice
+consonantes
+contiene una forma redondeada cerrada
+símbolos griegos
+contiene tres rayas horizontales
+contiene el mismo elemento duplicado
+1 cerrado, 1 abierto
+contiene una línea horizontal suelta
+all caracteres have vertical lines
+izquierda 
+tiene al menos un trazo horizontal.
+tiene al menos un trazo vertical.
+hay un recinto cerrado.
+tiene un trazo vertical que arranca del triangulito negro.
+tiene un recinto cerrado.
+tiene un recinto cerrado.
+tiene un recinto cerrado.
+tiene dos trazos discontinuos.
+tiene un único trazo o varios unidos sin discontinuidad.
+tiene al menos un trazo parecido al 6, derecho, grande o pequeño.
+hay dos o más trazos verticales de altura completa.
+tiene al menos dos trazos horizontales de anchura completa, menos 2 e con una banderita.
+tiene al menos un ángulo recto, incluidas las.parecidas al signo de interrogación.
+tiene una raya horizontal y más de una cruzando o tocándola.
+tiene apertura franca horizontal arriba. si se le vierte agua desde arriba en vertical queda retenida aunque sea muy poca. incluye pequeños piquitos.
+dos o más trazos inclinados, sin recintos cerrados.
+hay que levantar el lápiz. no vale repintar, incluyendo la omega invertida.
+de un solo trazo sin recintos cerrados.
+ces caracteres ont 4 extrémités.
+ces caracteres ont un segment vertical central, un segment horizontal en haut avec 2 empattements.
+contine perimetru inchis
+contine perimetru inchis 
+paralele
+has elipse
+tiene bolitas
+perimetru inchis
+linii paralele
+linie paralela cu solul
+todos los caracteres con ángulos rectos
+caracteres que solo están en el alfabeto griego
+oclusivas y nasales
+carácter con tres trazos
+alfabeto latino
+alfabeto greco 
+tres trazos rectos
+caracteres compuestos de dos trazos
+trazos ortogonales
+mismo elemento duplicado
+formas humanas
+asimétricas menos un cuerno
+dos arcos verticales paralelos
+dos arcos horizontales paralelos
+solo trazos rectos
+reglamento de reglas
+contiene un ovale
+parecem números
+líneas oblicuas
+partes redondeadas
+due linee verticali
+angolo acuto verso lalto
+caracteres con áreas triangulares
+caracteres con tres líneas rectas
+letras griegas
+letras consecutivas en alfabeto
+cuentan con menisco o uña
+dos trazos separados
+tres trazos separados
+cierran circulo
+lineas paralelas
+último diferente
+tiene líneas curvas
+contiene ángulos agudos
+caracteres con forma de pico
+caracteres con forma redondeada
+saludo

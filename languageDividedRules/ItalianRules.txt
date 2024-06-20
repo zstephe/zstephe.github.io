@@ -1,0 +1,103 @@
+recipient ou pont sans ruban ni cedille
+lettere con un angolo acuto
+lettere con un angolo retto
+lettere che puntano verso lalto
+caratteri con diagonali
+lettere trasversali
+hanno almeno due tratti orizzontali 
+tutte lettere presenti nellalfabeto italiano
+le prime 11 lettere dellalfabeto greco maiuscole
+le ultime 11 lettere dellalfabeto greco maiuscole
+minimo tre frecce orientate in modo coerente
+minimo tre frecce orientate in modo non coerente tra loro (direzione)
+i caratteri stanno tutti sotto la linea
+il carattere è definito da attributi orientati solo a sinistra
+si discostano molto da qualsiasi altra lettera alfabetica che conosco
+è presente una figura chiusa allinterno del carattere (uno spazio bianco delimitato)
+è presente un attributo nella parte bassa che caratterizza il simbolo
+sono presenti almeno due spazi delimitati (forme chiuse) nel carattere
+hanno tratti rotondi
+hanno tratti obliqui 
+tutti i caratteri presentano linee diagonali
+tutti i caratteri presentano linee curve
+i caratteri comprendono almeno un elemento a freccia formato da due cunei uniti 
+i caratteri contengono solo cunei verticali
+i caratteri non contengono elementi curvi
+i caratteri contengono uno o più punti
+i caratteri sono simmetrici 
+i caratteri creano degli spazi chiusi
+i caratteri contengono solo cunei orizzontali
+i caratteri contengono un solo segno/elemento
+i caratteri sono formati da due elementi
+i caratteri sono formati da tre elementi
+i caratteri sono formati da quattro elementi
+i caratteri sono formati da sei elementi
+i caratteri sono simmetrici orizzontalmente
+i caratteri formano uno spazio chiuso
+i caratteri sono formati da una linea continua senza spigoli
+i caratteri formano uno o più spazi chiusi
+i caratteri contengono un cerchio
+i caratteri contengono una linea unica spezzata con cambi di direzione senza incroci tra linee
+caratteri con una barra 
+caratteri con un ellisse
+aspet rond
+lettere che si scrivono con due tratti dritti 
+i caratteri contengono solo linee diritte
+i caratteri formano uno spazio chiuso
+i caratteri sono formati da una linea diritta e una linea curva
+i caratteri contengono una linea diagonale che va dallalto a sinistra al basso a destra
+i caratteri sono formati da una unica linea curva aperta
+i caratteri formano uno o più spazi chiusi
+i caratteri sono simmetrici verticalmente
+i caratteri sono simmetrici orizzontalmente
+i caratteri sono formati da ununica linea curva
+i caratteri formano spazi chiusi
+i caratteri contengono linee oblique
+i caratteri contengono una linea orizzontale che li divide al centro
+i caratteri sono formati da una o più linee verticali parallele sormontate da una linea orizzontale
+i caratteri sono formati da una linea orizzontale sormontata da una o più linee verticali parallele
+i caratteri sono formati da una o più linee oblique parallele attraversate al centro da una linea orizzontale
+i caratteri sono formati da una o più linee verticali parallele attraversate al centro da una linea orizzontale
+i caratteri sono sormontati da una linea orizzontale
+i caratteri contengono una linea orizzontale sottostante a ogni altra linea
+i caratteri sono formati da linee oblique che si intersecano simmetricamente, tagliate da una linea orizzontale
+i caratteri hanno come base la stessa linea curva che assomiglia a una v
+i caratteri formano uno spazio chiuso
+i caratteri contengono una linea fatta di curve alternate continue
+i caratteri sono formati da due elementi uguali curvi, con sporgenza a destra
+i caratteri sono simmetrici verticalmente
+i caratteri formano uno spazio chiuso
+i caratteri formano angoli di 90 gradi
+i caratteri contengono un elemento a forma di v
+i caratteri sono simmetrici verticalmente
+aree chiuse
+lunga linea orizzontale
+caricatore del fucile
+i caratteri sono simmetrici verticalmente
+lettere con forme circolari
+lettere con tratti verticali paralleli
+i caratteri creano spazi chiusi
+i caratteri contengono linee rette parallele
+i caratteri contengono linee curve parallele
+palka na calosc
+tutti i caratteri che hanno un cerchio
+caratteri che contengono forme triangolari
+contiene tre tratti
+contiene un tratto lungo e un tratto corto
+vocali latine tranne la u
+caratteri con curvatura
+due o tre righe orizzontali
+occhiolino
+ciondolo chiuso
+stretta v iniziale
+linea chiusa
+rettangoli
+linee arrotondate, chiuse o aperte
+due semicerchi aperti verso lalto
+tutti i caratteri con linee curve
+tutti i caratteri composti da due linee
+tutti i caratteri con un essere vivente
+tutti i caratteri con triangoli
+tutti i caratteri con linee dritte
+tutti i caratteri senza spazi chiusi
+linee perpendicolari

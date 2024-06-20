@@ -1,0 +1,25 @@
+USED TO MAKE WORD VECTORS WORK
+
+ADD THIS TO VENV: pip install scipy==1.12
+import gensim.downloader as api
+from gensim.models import Word2Vec
+import warnings
+warnings.filterwarnings(action='ignore')
+
+used this to make downloads work: bash '/Applications/Python 3.6/Install Certificates.command'
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+
+used for word embeddings
+wv = api.load('word2vec-google-news-300')
+
+
+# english, french, and german top 10000 words taken from: https://web.archive.org/web/20170227200416/http://wortschatz.uni-leipzig.de/html/wliste.html
+# added enclosed to english
+
+# all german words: https://gist.github.com/MarvinJWendt/2f4f4154b8ae218600eb091a5706b5f4
+# all french words: https://github.com/words/an-array-of-french-words/blob/master/index.json
+# all italian words: https://www.yorku.ca/lbianchi/italian.html
+# all spanish words: https://github.com/words/an-array-of-spanish-words/blob/master/index.json
+# all english words: https://github.com/words/an-array-of-english-words/blob/master/index.json

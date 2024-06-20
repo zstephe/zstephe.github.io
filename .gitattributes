@@ -1,0 +1,9 @@
+*.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/embeddings.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/embeddings2D.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/kmeansClusters.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/looksLike.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/all-rule-data.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/all-script-data.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/all-user-data.csv filter=lfs diff=lfs merge=lfs -text
+csv_files/cleanedData.csv filter=lfs diff=lfs merge=lfs -text
