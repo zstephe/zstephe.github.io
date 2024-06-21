@@ -1,8 +1,8 @@
 .column{
     float: left;
+    text-align:center;
     width: 50%;
     padding:10px;
-    text-align:center;
 }
 .row::after{
     content:"";
