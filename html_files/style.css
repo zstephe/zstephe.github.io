@@ -4,15 +4,15 @@
     width: 50%;
     padding:10px;
 }
-@media screen and (max-width: 900px) {
-    .column {
-      width: 100%;
-    }
-}
 .row::after{
     content:"";
     clear:both;
     display:table;
+}
+@media screen and (max-width: 600px) {
+    .column {
+      width: 100%;
+    }
 }
 
 
