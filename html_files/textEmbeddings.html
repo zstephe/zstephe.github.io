@@ -43,14 +43,16 @@
             </div>
         </div>
     </nav>
-    <h1>Text Embeddings</h1>
-    <p>In order to analyze the rules given by users in the Glyph data, I used text embeddings to generate vectorized 
-        versions of the data, and then clustered them using kmeans.
-    </p>
-    <p>\nThe first step of the process was to clean the data. I isolated the rows where the rule had been passed by the user, and then filtered out stop words/phrases.
+    <div style="margin:auto">
+        <h1>Text Embeddings</h1>
+        <p>In order to analyze the rules given by users in the Glyph data, I used text embeddings to generate vectorized 
+        versions of the data, and then clustered them using kmeans.</p>
+        <p>The first step of the process was to clean the data. I isolated the rows where the rule had been passed by the user, and then filtered out stop words/phrases.
         For this project, the stop phrases I identified included things such as "characters with" and "letters containing" which many users included in their rules.
         Without this filtering, the clusters would end up clustering all responses with those phrases included, which was not relevant to my analysis.
-    </p>
+        </p>
+    </div>
+    
     <!-- JavaScript: Above  -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
 </body>
