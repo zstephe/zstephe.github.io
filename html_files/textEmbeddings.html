@@ -19,8 +19,8 @@
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="width: 100%;">
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo02" style="width: 100%;">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="../index.html">Home</a>
                     </li>
@@ -43,14 +43,21 @@
             </div>
         </div>
     </nav>
-    <div style="margin: 10px;">
+    <div style="margin: 15px;">
         <h1>Text Embeddings</h1>
         <p>In order to analyze the rules given by users in the Glyph data, I used text embeddings to generate vectorized 
-        versions of the data, and then clustered them using kmeans.</p>
-        <p>The first step of the process was to clean the data. I isolated the rows where the rule had been passed by the user, and then filtered out stop words/phrases.
-        For this project, the stop phrases I identified included things such as "characters with" and "letters containing" which many users included in their rules.
-        Without this filtering, the clusters would end up clustering all responses with those phrases included, which was not relevant to my analysis.
+            versions of the data, and then clustered them using kmeans.</p>
+        <p>The first step of the process was to clean the data. I isolated the rows where the rule had been passed by the user, made everything lowercase, and then filtered out stop words/phrases.
+            For this project, the stop phrases I identified included things such as "characters with" and "letters containing" which many users included in their rules.
+            Without this filtering, the clusters would end up clustering all responses with those phrases included, which was not relevant to my analysis.
         </p>
+        <p>Once the data was cleaned, I used a sentence BERT model to generate embeddings for each rule. I originally used the <i>all-MiniLM-L6-v2</i>, 
+            but found that the non-English rules were clustered together and instead used the multilingual model <i>paraphrase-multilingual-mpnet-base-v2</i>.
+            Once the rules had been embedded, I used kmeans clustering to look for sets of similar rules. The goal was to create a list of rules that could be used universally across scripts,
+            supplementing the original list created by more manual data observation. When clustering, there was no clear elbow in the inertia test, so I stuck with cluster numbers around 20-30,
+            since these were manageable to look through but wouldn't oversimplify the data too much.
+        </p>
+        <img source="inertias.png" alt="Graph of inertias with various Kmeans cluster numbers">
     </div>
     
     <!-- JavaScript: Above  -->
