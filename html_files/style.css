@@ -10,7 +10,7 @@
     display:table;
 }
 
-@media screen and (max-width: 650px) {
+@media screen and (max-width: 750px) {
     .column {
       width: 100%;
     }
