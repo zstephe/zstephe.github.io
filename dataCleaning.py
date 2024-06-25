@@ -6,7 +6,6 @@ data = pd.read_csv('csv_files/all-rule-data.csv',index_col=False)
 data = data[data['Status']=='passed']
 # isolate the description column and make all lowercase
 data = data['Description'].str.lower()
-data = pd.read_csv("language_csv_files/germanCleaned.csv")['Description']
 
 
 # list of phrases to remove involving "characters"
@@ -55,5 +54,4 @@ for row in range(len(data)):
     
 
 # saves the cleaned rule list in a csv file
-#data.to_csv("csv_files/cleanedData.csv",index=False)
-data.to_csv("language_csv_files/germanCleaned2.csv",index=False)
+data.to_csv("csv_files/cleanedData.csv",index=False)

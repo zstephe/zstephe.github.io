@@ -1,13 +1,16 @@
 from functions import *
 import os.path
 
-
+# place to find data csv files
 data_folder_path = 'csv_files/'
+# specific data csv file to read
 data_path = "csv_files/cleanedData.csv"
 
+# checks if the data path exists
 if not os.path.isfile(data_path):
     raise Exception("The data file could not be found")
 
+# creates or loads embeddings
 if os.path.isfile(data_folder_path+'embeddings.csv'):
     # load embeddings from csv
     embeddings = pd.read_csv(data_folder_path+'embeddings.csv',index_col=False)
@@ -26,14 +29,12 @@ else:
 
 print("Done embeddings")
 
-
-
-
+# path for the kmeans csv file
 kmeansClusterPath = data_folder_path+"kmeansClusters.csv"
+# kmeans cluster numbers to test
 clusterRange = range(17,35)
-print(len(embeddings))
-print(len(embeddings2D))
 
+# checks if there is already a kmeans cluster datafile
 if(os.path.isfile(kmeansClusterPath)):
     # if kmeans clusters have already been computed, get data
     clusterDf = pd.read_csv(kmeansClusterPath,index_col=False)
@@ -48,13 +49,3 @@ else:
 print("Done Kmeans")
 
 
-#clusterDf = doKmeans(embeddings,range(1,100),showIntertias=True)
-'''plt.scatter(embeddings2D['0'],embeddings2D['1'],c=clusterDf['Kmeans 25'])
-plt.title("2D Cluster Representation")
-legend = []
-for i in range(25):
-    legend.append("Cluster "+ str(i))
-plt.legend(range(25),legend)
-plt.show()'''
-# retrieve specific cluster data from a cluster number
-# printClusterSet(clusterDf,25)
