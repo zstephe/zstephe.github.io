@@ -123,9 +123,11 @@ def doKmeans(embeddings,kmeansToTest,showIntertias=True,saveInertias=False):
         clusterDf['Kmeans '+str(i)] = kmeansLabels[i-kmeansToTest[0]]
 
     # shows graph of inertias for the user to decide where to make the cutoff
+    plt.figure(figsize=(8,6))
     plt.scatter(kmeansToTest,inertias)
     plt.xlabel("Number of Clusters")
     plt.ylabel("Inertia")
+    
     if(saveInertias):
         plt.savefig("html_files/inertias.png",bbox_inches="tight")
     if(showIntertias):
