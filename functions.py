@@ -108,7 +108,7 @@ Does Kmeans clustering on a bunch of different numbers of clusters and returns t
 @param showInertias = whether to show the inertias graph (default to showing)
 @return dataframe containing the clustering data: each row contains the description,
 '''
-def doKmeans(embeddings,kmeansToTest,showIntertias=True):
+def doKmeans(embeddings,kmeansToTest,showIntertias=True,saveInertias=False):
     # calculates inertias and kmeans clusters for each kmeans val to test
     inertias = []
     kmeansLabels = []
@@ -123,11 +123,16 @@ def doKmeans(embeddings,kmeansToTest,showIntertias=True):
         clusterDf['Kmeans '+str(i)] = kmeansLabels[i-kmeansToTest[0]]
 
     # shows graph of inertias for the user to decide where to make the cutoff
+    plt.scatter(kmeansToTest,inertias)
+    plt.xlabel("Number of Clusters")
+    plt.ylabel("Inertia")
+    if(saveInertias):
+        plt.savefig("html_files/inertias.png",bbox_inches="tight")
     if(showIntertias):
-        plt.scatter(kmeansToTest,inertias)
-        plt.xlabel("Number of Clusters")
-        plt.ylabel("Inertia")
         plt.show()
+    
+
+        
     return clusterDf
 
 
