@@ -1,0 +1,1159 @@
+---
+title: "Honorifis in Korean"
+author: "Yoolim, Jamie, and Marc"
+output:
+  html_document:
+    code_folding: hide
+    pdf_document: default
+    word_document: default
+    toc: yes
+    toc_collapsed: no
+    toc_float: true
+    toc_depth: 5
+---
+
+```{css, echo=FALSE}
+/* Move code folding buttons to the left */
+div.col-md-12 .pull-right {
+  float: left !important
+}
+```
+
+# Data wrangling
+
+
+Basic settings, e.g., we read the basic packages and set the seed for reproducibility. The most relevant is the tidyverse work environment. See https://www.tidyverse.org/ for more details.
+```{r message=FALSE, warning=FALSE}
+# remove scientific notations such as 10000=1e04
+options(scipen=3) 
+# remove basic settings of factors
+options(stringsAsFactors = FALSE)
+# settings for plots
+options(ggrepel.max.overlaps = Inf)
+# set seed for reproducibility
+set.seed(101) 
+# read the packages for plot
+library(tidyverse)
+library(GGally)
+library(ggfortify)
+library(ggrepel)
+# read the package for Excel files
+library(readxl)
+# read the packages for clustering
+library(cluster)
+library(factoextra)
+```
+
+One column ('Q#_con_abs') codes whether the response the participant gives is concrete or abstract. The second column ('Q#_alien') codes for alienability, and I've used the labels in Jamie's spreadsheet. I've kept any 'I don't know' responses as 'I don't know', instead of introducing a new label. The third column ('Q#_predict_alien') I made because I thought it would be helpful for doing the first of Jamie's proposed analyses (but maybe not!). I've just coded what our prediction is (so it's the same coded label throughout since we only have one prediction for each question). 
+
+```{r}
+data <- readxl::read_excel("data_raw/1_Data-28-08-23.xlsx",
+                           skip = 1) %>%
+  select(ID, Age, Gender = Gender_recoded,
+         L1, MotherL1, FatherL1, Birthplace,
+         contains("recoded"),
+         contains("con_abs"),
+         contains("alien")) %>%
+  mutate(Age = as.numeric(Age))
+
+# change colnames
+colnames(data) <- str_replace_all(colnames(data),
+                                  "_[Rr]ecoded","")
+glimpse(data)
+```
+
+
+```{r}
+# export the table if needed
+data %>% 
+  write.csv("data_honorifics.csv",
+            row.names = FALSE,
+            fileEncoding = "UTF-8")
+```
+
+
+# Data visualization
+
+```{r fig.width=8, fig.height=8}
+data %>%
+  select(Q1:Q17) %>% 
+  mutate(ID = row_number()) %>%
+  pivot_longer(names_to = "Q", values_to = "value", -ID) %>%
+  group_by(Q, value) %>%
+  summarise(count = n()) %>%
+  group_by(Q) %>%
+  mutate(total = sum(count)) %>%
+  mutate(ratio = count/total) %>%
+  ggplot(aes(x = value, y = count)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Q, 
+             scales = "free_x") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))
+ggsave("Figures/response_distribution.png", dpi = 300)
+```
+
+# Entropy?
+
+To give you a potential baseline, a case of 50/50 like a coin toss would have an entropy of 0.69.
+```{r}
+# read a relevant package
+library(entropy)
+# open an empty table
+ent.table <- NULL
+# get the list of questions
+questions <- data %>% select(Q1:Q17) %>% colnames()
+# for each question
+for(i in 1:length(questions)){
+  ent.table[i] <- data %>% 
+    # get the responses for that question
+    pull(questions[i])%>% 
+    # summarize
+    table %>%
+    # get the entropy
+    entropy()
+}
+
+# get the table
+ent.table <- cbind(questions, ent.table %>% round(digits = 2)) %>%
+  as.data.frame() %>% 
+  rename(question = 1, entropy = 2)
+# visualize
+ent.table %>%
+  arrange(desc(entropy)) %>%
+  knitr::kable()
+```
+
+
+
+
+# Distance
+
+
+```{r}
+# get the data with the measure
+con_data <- data %>% 
+  select(contains("Q")) %>%
+  as.data.frame() %>%
+  mutate_if(is.character, as.factor) 
+# add row names
+rownames(con_data) <- data$ID
+
+# remove columns with too many answers
+con_data <- con_data %>%
+  #select_if(~ nlevels(.) < 6) %>%
+  # change factor numeric
+  mutate_if(is.factor, as.numeric)
+
+# visualize the number of rows with NAs
+#rowSums(is.na(con_data)) %>% sort()
+
+# drop nas for now
+con_data <- con_data %>% drop_na() %>% as.matrix()
+
+# keep the filtered responses in the main data
+tmp <- data %>% filter(ID %in% rownames(con_data))
+
+# change the content to a distance matrix
+distances <- con_data %>% e1071::hamming.distance()
+
+# change the distances to multidimensional scaling
+fit <- cmdscale(distances, 
+                eig = TRUE, 
+                # set number of dimensions
+                k = 2) 
+```
+
+
+```{r fig.width=6}
+# extract the two dimensions
+cbind(fit$points[,1], fit$points[,2]) %>%
+  # change the formant
+  as.data.frame() %>%
+  # rename the columns
+  rename(x = 1, y = 2) %>%
+  # add metadata
+  mutate(ID = rownames(con_data),
+         Age = tmp$Age,
+         Gender = tmp$Gender,
+         Gender = factor(Gender)) %>%
+  # make the plot
+  ggplot(aes(x = x, y = y, 
+             label = ID, 
+             color = Age,
+             shape = Gender)) +
+  geom_text() +
+  # add text instead of points
+  #geom_text_repel(size = 1.5) +
+  # white background
+  theme_bw() +
+  # basic plot settings
+  theme(legend.position = "top") 
+ggsave("Figures/distances_raw.png", dpi = 300)
+```
+
+```{r fig.width=6}
+# extract the two dimensions
+cbind(fit$points[,1], fit$points[,2]) %>%
+  # change the formant
+  as.data.frame() %>%
+  # rename the columns
+  rename(x = 1, y = 2) %>%
+  # add metadata
+  mutate(ID = rownames(con_data),
+         Age = tmp$Age,
+         Gender = tmp$Gender,
+         Gender = factor(Gender)) %>%
+  # make the plot
+  ggplot(aes(x = x, y = y, 
+             label = ID, 
+             color =  Gender)) +
+  geom_text() +
+  # add text instead of points
+  #geom_text_repel(size = 1.5) +
+  # white background
+  theme_bw() +
+  # basic plot settings
+  theme(legend.position = "top") 
+#ggsave("Figures/distances_raw.png", dpi = 300)
+```
+
+Clustering
+```{r}
+# generate the clusters
+hclust_avg <- hclust(daisy(con_data, metric = "manhattan"))
+# plot the clusters
+# plot(hclust_avg)
+# add squares around the clusters
+# rect.hclust(hclust_avg , k = 4, border = 1:4)
+```
+
+In the current preliminary analysis, we set the number of clusters to the same amount of group, which is 3 (i.e., Adv, CC, and SC). However, we can also see what would be the mathematically ideal number of clusters.
+```{r}
+# see how many clusters is ideal
+fviz_nbclust(con_data, FUN = hcut, method = "silhouette", k.max = 20) 
+```
+
+Now, we plot the generated clusters. We plot the labels based on their affiliated group in the data.
+```{r fig.height=10, fig.width=6}
+# cut the data into clusters
+clus = cutree(hclust_avg, 4)
+
+test <- clus %>%
+  # change format of the data
+  as.data.frame() %>%
+  # rename the column
+  rename(Cluster = 1) %>%
+  # add the language names
+  mutate(Name = names(clus),
+         Age = data$Age) %>%
+  # add the metadata
+  #merge(data %>% select(Name = ID, file, pos_dismo), by = "Name", all.x = TRUE) %>%
+  # add a column for the color of the groups
+  mutate(Color = case_when(Age > 23 ~ "red",
+                           TRUE ~ "black"))
+
+# match the order of rows in the data with the order of tip labels
+test <- test[match(names(clus), test$Name),]
+# make a plot
+plot(ape::as.phylo(hclust_avg), 
+     # change the visualization type if needed
+     #type = "fan",
+     tip.color = test$Color,
+     # plot settings
+     label.offset = 0.01, cex = 1, no.margin = TRUE)
+dev.print(png, file = "Figures/clustering.png", 
+          width = 1024, height = 768)
+```
+
+
+Coloring participants by cluster?
+```{r fig.width=8, fig.height=8}
+data %>%
+  select(ID, Q1:Q17) %>%
+  mutate(cluster = factor(test$Cluster)) %>%
+  pivot_longer(names_to = "Q", values_to = "value",
+               -c(ID, cluster)) %>%
+  group_by(Q, value, ID) %>%
+  mutate(count = n()) %>%
+  ggplot(aes(x = value, y = count, fill = cluster)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Q, 
+             scales = "free_x") +
+  theme(axis.text.x = element_text(hjust = 1, angle = 45))
+ggsave("Figures/response_distribution_cluster.png", dpi = 300)
+```
+
+
+```{r}
+# extract the two dimensions
+cbind(fit$points[,1], fit$points[,2]) %>%
+  # change the formant
+  as.data.frame() %>%
+  # rename the columns
+  rename(x = 1, y = 2) %>%
+  # add metadata
+  mutate(ID = rownames(con_data),
+         Age = tmp$Age,
+         Gender = tmp$Gender,
+         Gender = factor(Gender),
+         cluster = factor(test$Cluster)) %>%
+  # make the plot
+  ggplot(aes(x = x, y = y, 
+             label = ID, 
+             color = cluster,
+             shape = Gender)) +
+  geom_text() +
+  # add text instead of points
+  #geom_text_repel(size = 1.5) +
+  # white background
+  theme_bw() +
+  # basic plot settings
+  theme(legend.position = "top") 
+ggsave("Figures/distances_cluster.png", dpi = 300)
+```
+
+
+```{r}
+library(ggtree)
+library(tanggle)
+nnet <- data %>% select(Q1:Q17) %>% mutate_all(as.factor) %>% mutate_all(as.numeric)
+rownames(nnet) <- data$ID
+dist.matrix <- nnet %>%
+  dist(method = "manhattan")
+net <- phangorn::neighborNet(dist.matrix) 
+
+# extracting the feature values
+feature <- test$Cluster
+# adding names to the values
+names(feature) <- test$Name
+# make the order of values the same as the order of tip labels
+feature <- feature[order(factor(names(feature),
+                                levels = net$tip.label))]
+
+net$tip.label <- paste(net$tip.label, feature, sep = "_")
+
+#net2 <- full_join(net, data.frame(label = names(feature), stat = feature ), by = 'label') 
+net %>%
+  ggsplitnet() + geom_tiplab2(size = 3, colour = "black")
+ggsave("Figures/neighbornet.png", dpi = 300)
+```
+
+# alineability
+
+```{r fig.width=16}
+alien <- data %>%
+  select(ID, contains("alien"))
+
+alien$Cluster <- test$Cluster
+
+alien <- alien %>%
+  group_by(ID) %>%
+  pivot_longer(names_to = "Question", values_to = "Values", -c(Cluster, ID)) %>%
+  ungroup() %>%
+  mutate(Questions = str_replace(Question, "_.*", ""),
+         type = case_when(str_detect(Question, "predict") ~ "prediction",
+                          TRUE ~ "answer")) %>%
+  select(-Question) 
+
+alien %>%
+  group_by(ID, Questions, type) %>%
+  pivot_wider(names_from = "type", values_from = "Values") %>%
+  mutate(accuracy = case_when(answer == prediction ~ "match",
+                              answer != prediction ~ "not_match")) %>%
+  select(ID, Cluster, Questions, accuracy) %>%
+  group_by(ID) %>%
+  mutate(total = n()) %>%
+  group_by(ID, accuracy) %>%
+  mutate(count = n()) %>%
+  ungroup() %>%
+  select(ID, Cluster, accuracy, total, count) %>%
+  distinct() %>%
+  filter(accuracy != "match") %>%
+  mutate(ratio = count/total) %>%
+  mutate(ratio = 1- ratio) %>%
+  mutate(Cluster = factor(Cluster)) %>%
+  ggplot(aes(x = reorder(ID, ratio), y = ratio, fill = Cluster)) +
+  geom_bar(stat = "identity") 
+```
+
+
+
+# Predicting participants
+
+```{r}
+# get the metadata
+data.tree <- data
+
+# add the clusters
+data.tree$To_Predict <- test$Name
+  
+# reorder the columns
+data.tree <- data.tree %>%
+  select(To_Predict, Q1:Q17) %>%
+  drop_na()
+  
+# change all the categorical variables to dummy variables
+for(i in 2:ncol(data.tree)){
+  for(level in unique(data.tree[,i]))
+  {data.tree[paste(colnames(data.tree)[i], level,
+                   sep = "_")] <- ifelse(data.tree[,i] == level, 1, 0)
+  }}
+
+#remove the original columns, except the one to be predicted
+data.tree <- data.tree %>% select(-c(To_Predict, Q1:Q17)) 
+
+nrow(data.tree)
+
+data.tree %>% 
+  unite(col = "string") %>%
+  pull(string) %>%
+  unique() %>%
+  length()
+
+# visual check
+glimpse(data.tree)
+```
+```{r}
+# get the metadata
+data.tree <- data
+
+# add the clusters
+data.tree$To_Predict <- test$Name
+  
+# reorder the columns
+data.tree <- data.tree %>%
+  select(To_Predict, Q1:Q17) %>%
+  drop_na()
+  
+
+# visual check
+glimpse(data.tree)
+```
+
+Then, we extract the information gain for each variable and compare the information gain for verb pairs 1 to 9 vs. verb pairs 10 to 18.
+```{r}
+# read relevant package
+library(data.tree)
+
+# write the functions for extracting the ID3
+# examples at: https://www.r-bloggers.com/2015/04/id3-classification-using-data-tree/
+
+IsPure <- function(data) {
+  length(unique(data[,ncol(data)])) == 1
+}
+
+Entropy <- function( vls ) {
+  res <- vls/sum(vls) * log2(vls/sum(vls))
+  res[vls == 0] <- 0
+  -sum(res)
+}
+
+InformationGain <- function( tble ) {
+  tble <- as.data.frame.matrix(tble)
+  entropyBefore <- Entropy(colSums(tble))
+  s <- rowSums(tble)
+  entropyAfter <- sum (s / sum(s) * apply(tble, MARGIN = 1, FUN = Entropy ))
+  informationGain <- entropyBefore - entropyAfter
+  return (informationGain)
+}
+
+# extract a sample of the data
+tmp <- data.tree
+
+# create a data frame to save the output
+InfGain <- NULL %>% as.data.frame()
+
+# extract information gain for each verb pair
+for(i in 2:18){
+    tmp[,c(i, 1)] %>% 
+    table %>%
+    InformationGain() -> output
+  
+  InfGain <- rbind(InfGain, c(colnames(tmp)[i], output))
+}
+
+# adjust column names
+colnames(InfGain) <- c("Pair", "Information gain")
+
+# make a plot
+InfGain %>%
+  # add group of verb pairs information
+  mutate(`Information gain` = as.numeric(`Information gain`)) %>%
+  ggplot(aes(x = reorder(Pair, `Information gain`), y = `Information gain`)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("Figures/InfGain by question.png", dpi = 300)
+```
+
+```{r}
+# get the metadata
+data.tree <- data
+
+# add the clusters
+data.tree$To_Predict <- test$Name
+  
+# reorder the columns
+data.tree <- data.tree %>%
+  select(Q1:Q17) %>%
+  drop_na()
+  
+data.tree <- t(data.tree) %>% as.data.frame()
+
+# visual check
+glimpse(data.tree)
+```
+
+Then, we extract the information gain for each variable and compare the information gain for verb pairs 1 to 9 vs. verb pairs 10 to 18.
+```{r}
+# read relevant package
+library(data.tree)
+
+# write the functions for extracting the ID3
+# examples at: https://www.r-bloggers.com/2015/04/id3-classification-using-data-tree/
+
+IsPure <- function(data) {
+  length(unique(data[,ncol(data)])) == 1
+}
+
+Entropy <- function( vls ) {
+  res <- vls/sum(vls) * log2(vls/sum(vls))
+  res[vls == 0] <- 0
+  -sum(res)
+}
+
+InformationGain <- function( tble ) {
+  tble <- as.data.frame.matrix(tble)
+  entropyBefore <- Entropy(colSums(tble))
+  s <- rowSums(tble)
+  entropyAfter <- sum (s / sum(s) * apply(tble, MARGIN = 1, FUN = Entropy ))
+  informationGain <- entropyBefore - entropyAfter
+  return (informationGain)
+}
+
+# extract a sample of the data
+tmp <- data.tree
+
+# create a data frame to save the output
+InfGain <- NULL %>% as.data.frame()
+
+# extract information gain for each verb pair
+for(i in 1:67){
+    tmp[,c(i, 1)] %>% 
+    table %>%
+    InformationGain() -> output
+  
+  InfGain <- rbind(InfGain, c(colnames(tmp)[i], output))
+}
+
+# adjust column names
+colnames(InfGain) <- c("Pair", "Information gain")
+
+# make a plot
+InfGain %>%
+  # add group of verb pairs information
+  mutate(`Information gain` = as.numeric(`Information gain`)) %>%
+  ggplot(aes(x = reorder(Pair, `Information gain`), y = `Information gain`)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 6))
+```
+```{r}
+InfGain %>%
+  mutate(`Information gain` = as.numeric(`Information gain`)) %>%
+  ggplot(aes(x = `Information gain`)) +
+  geom_histogram(breaks = c(0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4), fill = "gray", color = "black") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(),
+               panel.grid.minor = element_blank()) +
+  scale_x_continuous(limits=c(0, 4),
+                     breaks=seq(0,4,by=0.5))
+```
+
+
+
+# Predicting clusters
+
+```{r}
+
+data.glm <- data
+# add the clusters
+data.glm$To_Predict <- test$Cluster
+data.glm <- data.glm %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(To_Predict = as.numeric(To_Predict)) %>%
+  drop_na() %>%
+  select(-c(ID, L1, MotherL1, FatherL1, Q3, Birthplace)) 
+
+model <- glm(To_Predict ~ ., data = data.glm)
+summary(model)
+```
+
+
+
+```{r}
+# get the metadata
+data.tree <- data
+
+# add the clusters
+data.tree$To_Predict <- test$Cluster
+  
+# reorder the columns
+data.tree <- data.tree %>%
+  drop_na()
+  
+# change all the categorical variables to dummy variables
+#for(i in 3:ncol(data.tree)){
+#  for(level in unique(data.tree[,i]))
+#  {data.tree[paste(colnames(data.tree)[i], level,
+#                   sep = "_")] <- ifelse(data.tree[,i] == level, 1, 0)
+#  }}
+
+#remove the original columns, except the one to be predicted
+#data.tree <- data.tree %>% select(-c(Gender, Gender_NA)) 
+#change the value to be predicted as factors
+data.tree <- data.tree %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(To_Predict = factor(To_Predict)) %>%
+  select(-c(ID))
+# remove all the NAs
+#data.tree[is.na(data.tree)] <- 0
+# remove columns with the same value
+#data.tree <- data.tree %>% select(where(~n_distinct(.) > 1))
+
+# visual check
+glimpse(data.tree)
+```
+
+
+```{r message = FALSE}
+# read the relevant package
+library(party)
+
+# generate the tree
+inferencetree <- ctree(To_Predict ~ ., data = data.tree,
+                       controls = ctree_control(testtype = "MonteCarlo",
+                                                minsplit = 2,
+                                                minbucket = 1))
+# visualize the tree
+plot(inferencetree)
+```
+
+The tree looks nice, but we need to evaluate the performance of this tree, i.e., how many languages can you label correctly with this tree? The following tree compares the predictions and the actual genealogical affiliation of languages.
+```{r}
+output.inf.tree <- cbind(predict(inferencetree) %>% as.character(),
+                         data.tree$To_Predict %>% as.character()) %>%
+  as.data.frame() %>%
+  rename(Prediction = 1, Actual = 2) %>%
+  mutate(Performance = case_when(Prediction == Actual ~ "Correct",
+                                 Prediction != Actual ~ "Wrong"))
+
+output.inf.tree
+```
+
+The performance of the tree is evaluated as follows. The performance is quite high: around 90%. This is way above the majority baseline (No information rate of 68%). Mel languages are generally not identified by the classifier. 
+```{r}
+#the columns are the real/reference values, the rows are the predicted values
+caret::confusionMatrix(data = predict(inferencetree),
+                       reference = as.factor(output.inf.tree$Actual),
+                       # select the metrics we want to show
+                       mode = "prec_recall")
+# for kappa https://stats.stackexchange.com/questions/82162/cohens-kappa-in-plain-english
+# Kappa = (observed accuracy - expected accuracy)/(1 - expected accuracy)
+# kappas > 0.75 as excellent, 0.40-0.75 as fair to good, and < 0.40 as poor.
+# for Acc > NIR (no information rate = majority baseline)
+# https://stats.stackexchange.com/questions/154479/definition-of-p-value-in-carets-confusion-matrix-method
+```
+
+Just in case, we also extract the random baseline for reference.
+```{r}
+# get the random baseline
+data.tree$To_Predict %>% table() -> tmp
+paste("The random baseline is",
+      sum((tmp/sum(tmp))*(tmp/sum(tmp))) %>% round(digits = 3))
+```
+
+
+
+# Information gain
+
+Then, we extract the information gain for each variable and compare the information gain for verb pairs 1 to 9 vs. verb pairs 10 to 18.
+```{r}
+# read relevant package
+library(data.tree)
+
+# write the functions for extracting the ID3
+# examples at: https://www.r-bloggers.com/2015/04/id3-classification-using-data-tree/
+
+IsPure <- function(data) {
+  length(unique(data[,ncol(data)])) == 1
+}
+
+Entropy <- function( vls ) {
+  res <- vls/sum(vls) * log2(vls/sum(vls))
+  res[vls == 0] <- 0
+  -sum(res)
+}
+
+InformationGain <- function( tble ) {
+  tble <- as.data.frame.matrix(tble)
+  entropyBefore <- Entropy(colSums(tble))
+  s <- rowSums(tble)
+  entropyAfter <- sum (s / sum(s) * apply(tble, MARGIN = 1, FUN = Entropy ))
+  informationGain <- entropyBefore - entropyAfter
+  return (informationGain)
+}
+
+# extract a sample of the data
+tmp <- data %>% select(Family, Pair_1:Pair_18)
+
+# create a data frame to save the output
+InfGain <- NULL %>% as.data.frame()
+
+# extract information gain for each verb pair
+for(i in 2:19){
+    tmp[,c(i, 1)] %>% 
+    table %>%
+    InformationGain() -> output
+  
+  InfGain <- rbind(InfGain, c(colnames(tmp)[i], output))
+}
+
+# adjust column names
+colnames(InfGain) <- c("Pair", "Information gain")
+
+# make a plot
+InfGain %>%
+  # add group of verb pairs information
+  mutate(`Information gain` = as.numeric(`Information gain`),
+         Type = case_when(str_detect(Pair, "_1.") ~ "10to18",
+                          TRUE ~ "1to9")) %>%
+  # make the plot
+  ggplot(aes(x = Type, y = `Information gain`)) +
+  geom_boxplot(fill = "gold", color = "blue") +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold"),
+        axis.title.x=element_blank(), 
+        strip.text.x = element_text(size=12,face="bold"), 
+        legend.text=element_text(size=12)) + 
+  ggpubr::stat_compare_means(comparisons = list(c("1to9","10to18")),
+                             method = "wilcox.test", label = "p.signif",
+                             #p.adjust.methods = "bonferroni", 
+                             ) +
+  geom_jitter()
+```
+
+We can visualize the distribution of information gain for the variables
+```{r}
+# make a plot
+InfGain %>%
+  # add group of verb pairs information
+  mutate(`Information gain` = as.numeric(`Information gain`),
+         Type = case_when(str_detect(Pair, "_1.") ~ "10to18",
+                          TRUE ~ "1to9")) %>%
+  ggplot(aes(x = `Information gain`, color = Type)) +
+  geom_density()
+```
+
+We can visualize the ranking of the information gain per pair and valence strategy.
+```{r fig.width= 9}
+InfGain %>%
+  mutate(`Information gain` = as.numeric(`Information gain`),
+         `Information gain` = round(`Information gain`,
+                                    digits = 2),
+         Type = case_when(str_detect(Pair, "_1.") ~ "10to18",
+                          TRUE ~ "1to9")) %>%
+  arrange(desc(`Information gain`)) %>%
+  ggplot(aes(x = reorder(Pair, `Information gain`),
+             y = `Information gain`,
+             fill = Type)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = `Information gain`),
+            vjust = -0.25) +
+  xlab("") +
+  theme(axis.title = element_text(size = 18),
+        legend.position = "top",
+        legend.title = element_text(size =18),
+        legend.text = element_text(size = 18))
+
+ggsave('Figures/gain.png', width = 10, height = 5, dpi = 600)
+```
+
+
+# comparing distances
+
+```{r}
+tmp <- distances %>%
+  reshape2::melt() %>%
+  merge(data %>% select(ID, Age.Var1 = Age, Gender.Var1 = Gender),
+        by.x = "Var1", by.y = "ID", all.x = TRUE) %>%
+  merge(data %>% select(ID, Age.Var2 = Age, Gender.Var2 = Gender),
+        by.x = "Var2", by.y = "ID", all.x = TRUE) %>%
+  drop_na() %>%
+  mutate(Age.diff = abs(Age.Var1 - Age.Var2)) %>%
+  mutate(Gender.diff = paste0(Gender.Var1, Gender.Var2)) 
+
+tmp %>%
+  ggplot(aes(x = value, y = Age.diff)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+tmp %>%
+  ggplot(aes(x = Gender.diff, y = value)) +
+  geom_boxplot()
+```
+
+
+
+# Stuff from before
+
+
+
+```{r}
+data <- read.csv("Honorifics Study_May 30, 2023_13.52.csv") %>%
+  slice(-c(1:3)) %>%
+  # merge the two columns from each question
+  mutate(Q1 = case_when(is.na(Q1_1_TEXT) ~ Q1,
+                        !is.na(Q1_1_TEXT) ~ Q1_1_TEXT),
+         Q2 = case_when(is.na(Q2_1_TEXT) ~ Q2,
+                        !is.na(Q2_1_TEXT) ~ Q2_1_TEXT),
+         Q3 = case_when(is.na(Q3_1_TEXT) ~ Q3,
+                        !is.na(Q3_1_TEXT) ~ Q3_1_TEXT),
+         Q4 = case_when(is.na(Q4_1_TEXT) ~ Q4,
+                        !is.na(Q4_1_TEXT) ~ Q4_1_TEXT),
+         Q5 = case_when(is.na(Q5_1_TEXT) ~ Q5,
+                        !is.na(Q5_1_TEXT) ~ Q5_1_TEXT),
+         Q6 = case_when(is.na(Q6_1_TEXT) ~ Q6,
+                        !is.na(Q6_1_TEXT) ~ Q6_1_TEXT),
+         Q7 = case_when(is.na(Q7_1_TEXT) ~ Q7,
+                        !is.na(Q7_1_TEXT) ~ Q7_1_TEXT),
+         Q8 = case_when(is.na(Q8_1_TEXT) ~ Q8,
+                        !is.na(Q8_1_TEXT) ~ Q8_1_TEXT),
+         Q9 = case_when(is.na(Q9_1_TEXT) ~ Q9,
+                        !is.na(Q9_1_TEXT) ~ Q9_1_TEXT),
+         Q10 = case_when(is.na(Q10_1_TEXT) ~ Q10,
+                         !is.na(Q10_1_TEXT) ~ Q10_1_TEXT),
+         Q11 = case_when(is.na(Q11_1_TEXT) ~ Q11,
+                         !is.na(Q11_1_TEXT) ~ Q11_1_TEXT),
+         Q12 = case_when(is.na(Q12_1_TEXT) ~ Q12,
+                         !is.na(Q12_1_TEXT) ~ Q12_1_TEXT),
+         Q13 = case_when(is.na(Q13_1_TEXT) ~ Q13,
+                         !is.na(Q13_1_TEXT) ~ Q13_1_TEXT),
+         Q14 = case_when(is.na(Q14_1_TEXT) ~ Q14,
+                         !is.na(Q14_1_TEXT) ~ Q14_1_TEXT),
+         Q15 = case_when(is.na(Q15_1_TEXT) ~ Q15,
+                         !is.na(Q15_1_TEXT) ~ Q15_1_TEXT),
+         Q16 = case_when(is.na(Q16_1_TEXT) ~ Q16,
+                         !is.na(Q16_1_TEXT) ~ Q16_1_TEXT),
+         Q17 = case_when(is.na(Q17_1_TEXT) ~ Q17,
+                         !is.na(Q17_1_TEXT) ~ Q17_1_TEXT)) %>%
+  select(-c(Q1_1_TEXT, Q2_1_TEXT, Q3_1_TEXT, Q4_1_TEXT, Q5_1_TEXT,
+            Q6_1_TEXT, Q7_1_TEXT, Q8_1_TEXT, Q9_1_TEXT, Q10_1_TEXT, 
+            Q11_1_TEXT, Q12_1_TEXT, Q13_1_TEXT, Q14_1_TEXT, 
+            Q15_1_TEXT, Q16_1_TEXT, Q17_1_TEXT)) %>%
+  # only keep finished sessions
+  filter(Finished == "True") %>%
+  # add ID
+  mutate(ID = paste0("P",row_number())) %>%
+  # keep relevant columns
+  select(ID, Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Q11,Q12,Q13,Q14,Q15,Q16,Q17,
+         #Q1:Q17_1_TEXT,
+         Age = Q18, Gender = `Q19`,
+         L1 = `Q21`,
+         MotherL1 = `Q22`, FatherL1 = `Q23`, 
+         Birthplace = `Q24`) %>%
+  mutate(Age = as.numeric(Age)) 
+
+# print the data
+data %>% write.csv("data_clean.csv",
+                   row.names = FALSE,
+                   fileEncoding = "UTF-8")
+
+glimpse(data)
+```
+
+```{r}
+tmp <- data %>%
+  select(Q1:Q17, Gender, L1, MotherL1, FatherL1, Birthplace) %>%
+  map(table)
+
+tables <- NULL %>% as.data.frame()
+
+for(i in 1:length(tmp)){
+  tables <- rbind(tables, tmp[[i]] %>% 
+                   as.data.frame() %>%
+                   mutate(variable = names(tmp[i])))  
+}
+tables <- tables %>%
+  select(variable, Freq, value = Var1) %>%
+  group_by(variable, value) %>%
+  arrange(variable, desc(Freq))
+
+tables %>% write.csv("values.csv",
+                     row.names = FALSE,
+                     fileEncoding = "UTF-8")
+```
+
+
+```{r}
+data %>%
+  select(Q1, Q1_1_TEXT) %>%
+  mutate(Q1_merged = case_when(Q1 == "밑줄 친 부분의 대상은 ______" ~ Q1_1_TEXT,
+                               TRUE ~ Q1)) %>%
+  filter(Q1_merged != "") %>%
+  pull(Q1_merged) %>%
+  table %>%
+  sort(decreasing = TRUE) %>%
+  as.data.frame()
+```
+
+
+
+```{r}
+data <- read_excel("Honorifics-2023-05-14.xlsx") %>%
+  # remove the first row which is the column names
+  #slice(-1) %>%
+  # only keep finished sessions
+  filter(`Finished-Finished` == "True") %>%
+  # add ID
+  mutate(ID = paste0("P",row_number())) 
+
+colnames(data)[which(str_detect(colnames(data), "TEXT"))-1] <- colnames(data)[which(str_detect(colnames(data), "TEXT"))-1] %>%
+  str_replace("-.*","")
+
+colnames(data)[which(str_detect(colnames(data), "TEXT"))]  <- colnames(data)[which(str_detect(colnames(data), "TEXT"))] %>%
+  str_replace("-.*","")
+
+data <- data %>%
+  # keep relevant columns
+  select(ID, Q1,Q2,Q3,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Q11,Q12,Q13,Q14,Q15,Q16,Q17,
+         #Q1:Q17_1_TEXT,
+         Age = Q18_Age, Gender = `Q19_Gender_1=F;2=M`,
+         L1 = `Q21_L1_1=K;2=E`,
+         MotherL1 = `Q22-MotherL1_1=K`, FatherL1 = `Q23-FatherL1_1=K`, 
+         Birthplace = `Q24-BirthCity:`) %>%
+  mutate(Age = as.numeric(Age)) 
+```
+```{r}
+#%>%
+
+
+# visual check
+glimpse(data)
+```
+
+
+```{r warning = FALSE}
+# read the data
+data <- read.csv("DM_IS2023_test.csv") %>%
+  # keep relevant variables and rename
+  select(pos_dismo = pos_dismo_large, duration, 
+         meanF0 = `mean_F0.Hz.`, meanF1 = `mean_F1.Hz.`, meanF2 = `mean_F2.Hz.`,
+         meanHNR = `mean_HNR.dB.`, file = name_textgrid_file) %>%
+  # change to numeric when needed
+  mutate(meanF0 = as.numeric(meanF0)) %>%
+  # change to factor when needed
+  mutate(pos_dismo = as.factor(pos_dismo)) %>%
+  # remove NAs
+  drop_na() %>%
+  # add a row for IDs
+  mutate(ID = row_number())
+# visual check
+glimpse(data)
+```
+
+Look at the distribution of variables
+```{r}
+data$pos_dismo %>% table
+```
+
+
+First, we try to visualize how the data points are clustered or not according to the considered variables. For that, we do a PCA (Principal component analysis). Each point represents a data point. The arrows indicate the influence of the variables. The length of the arrows indicate the magnitude of the effect for each variable.
+```{r fig.width=6, fig.height=6}
+# keep the columns with the numeric values for the PCA
+con_data <- data  %>%
+  # remove columns with metadata
+  select(-c(pos_dismo, file, ID)) %>%
+  # change to matrix
+  as.matrix()
+# specify row names for the plot later
+rownames(con_data) <- data$ID
+# make the plot
+autoplot(prcomp(con_data),
+         data = data,
+         # specify the color of the labels
+         colour = 'pos_dismo',
+         # specify the size of the labels
+         label = FALSE, 
+         label.size = 3,
+         shape = TRUE,
+         size = 2,
+         # adding the loading arrows labels
+         loadings = TRUE, 
+         loadings.label = TRUE,
+         # specifying the colors for the arrows and labels
+         loadings.colour = c('gray'),
+         loadings.label.colour = "blue",
+         # specifying the size of the loadings
+         loadings.label.size = 3,
+         loadings.label.vjust = 1.3,
+         # avoid label overlap with ggfortify
+         loadings.label.repel=T,
+         frame = FALSE) + 
+  # use color-blind palette if needed
+  #scale_color_viridis_d(alpha = 0.6) +
+  theme_bw() +
+  #guides(colour = guide_legend(override.aes = list(size = 3))) +
+  # basic plot settings
+  theme(legend.position = "top",
+        axis.text = element_blank(),
+        axis.title=element_text(size=12),
+        legend.text = element_text(size = 12),
+        title = element_text(size = 16),
+        legend.title = element_blank())
+
+```
+
+
+We can make a correlation plot of all the continuous variables we are looking at. The correlation coefficient r can be interpreted as follows:
+
+- measure of linear relationship
+- between -1.0 (perfectly negative) and +1.0 (perfectly positive)
+- 0 means no (linear) relationship
+
+The visual can show us which variables are interacting with each other. For example, if some variables are highly correlated with each other.
+```{r}
+data %>%
+  # remove the metadata
+  select(-c(pos_dismo, file, ID)) %>%
+  # make the plot
+  ggpairs(lower=list(continuous=wrap("smooth", colour="black")),
+          upper = list(continuous = wrap("cor", size=4, colour = "black"))) +
+  # basic plot settings
+  theme(strip.text = element_text(size = 8),
+        axis.text = element_text(size = 8))
+```
+
+
+
+We can then compare the clusters and the actual groups
+```{r}
+# Get principal component vectors for 1-9
+pc <- prcomp(con_data)
+# First four principal components
+pc <- data.frame(pc$x[,1:4])
+
+# add PCA coordinates to the data
+test$PC1 <- pc$PC1
+test$PC2 <- pc$PC2
+
+#getting the convex hull of each unique point set
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+hulls <- plyr::ddply(test, "Cluster", find_hull)
+hulls <- hulls %>% mutate(Cluster = factor(Cluster))
+
+test %>%
+  mutate(Cluster = factor(Cluster)) %>%
+  ggplot(aes(x = PC1, y = PC2)) +
+  #ggrepel::geom_text_repel(aes(label = Language, color = Family),
+  #                         max.overlaps = 20) +
+  geom_point(aes(color = pos_dismo)) +
+  scale_color_manual(values = c("red","blue","green")) +
+  xlab("PC1 (86.62%)") +
+  ylab("PC2 (12.10%") +
+  geom_polygon(data=hulls, aes(fill=Cluster), alpha = 0.2) +
+  scale_fill_manual(values = c("red","darkblue","darkgreen")) +
+  theme_bw()
+# save the figure
+#ggsave('Figures/Cluster_1to9.png', width = 7, height = 5, dpi = 600)
+```
+
+To evaluate the performance across the clusters, we assess how similar are the clusters with the original pos_dismo. To do so, we use the Rand Index and the Adjusted Rand Index. The adjusted Rand Index (ARI) should be interpreted as follows: ARI >= 0.90 excellent recovery; 0.80 =< ARI < 0.90 good recovery; 0.65 =< ARI < 0.80 moderate recovery; ARI < 0.65 poor recovery.
+```{r}
+suppressPackageStartupMessages(library(ClusterR))
+external_validation(test$Cluster %>% as.numeric(),
+                    test$pos_dismo %>% as.numeric(),
+                    summary_stats = T)
+```
+
+
+## Extracting distances
+
+We can extract the pairwise distance between the points of the data set. First, we can visualize the distances in a two-dimensional space. Normally, we expect that this visualization matches with the output of the PCA.
+```{r}
+# change the content to a distance matrix
+distances <- con_data %>% dist(method = "euclidean")
+
+# change the distances to multidimensional scaling
+fit <- cmdscale(distances, 
+                eig = TRUE, 
+                # set number of dimensions
+                k = 2) 
+
+# extract the two dimensions
+cbind(fit$points[,1], fit$points[,2]) %>%
+  # change the formant
+  as.data.frame() %>%
+  # rename the columns
+  rename(x = 1, y = 2) %>%
+  # add metadata
+  mutate(Name = data$ID,
+         pos_dismo = data$pos_dismo) %>%
+  # make the plot
+  ggplot(aes(x = x, y = y, label = Name, color = pos_dismo)) +
+  geom_point() +
+  # add text instead of points
+  #geom_text_repel() +
+  # white background
+  theme_bw() +
+  # basic plot settings
+  theme(legend.position = "top") +
+  # manually set the colors of the text labels
+  scale_color_manual(values = c("red","blue","green","orange","black","purple",
+                                "pink"))
+
+```
+
+Then, we can also extract the pairwise distance between and across groups of pos_dismo.
+```{r}
+# identify the points of each group
+ADV <- data %>% filter(pos_dismo == "Adv.") %>% pull(ID)
+CC <- data %>% filter(pos_dismo == "CC") %>% pull(ID)
+SC <- data %>% filter(pos_dismo == "SC") %>% pull(ID)
+
+distances %>%
+  # change formant
+  as.matrix() %>%
+  reshape2::melt() %>%
+  # keep pairs with different languages
+  filter(Var1 != Var2) %>%
+  # identify the groups
+  mutate(Group = case_when(Var1 %in% ADV & Var2 %in% ADV ~ "ADV",
+                           Var1 %in% CC & Var2 %in% CC ~ "CC",
+                           Var1 %in% SC & Var2 %in% SC ~ "SC",
+                           Var1 %in% ADV & Var2 %in% CC ~ "ADV_CC",
+                           Var1 %in% CC & Var2 %in% ADV ~ "ADV_CC",
+                           Var1 %in% ADV & Var2 %in% SC ~ "ADV_SC",
+                           Var1 %in% SC & Var2 %in% ADV ~ "ADV_SC",
+                           Var1 %in% SC & Var2 %in% CC ~ "SC_CC",
+                           Var1 %in% CC & Var2 %in% SC ~ "SC_CC")) %>% 
+  # keep pairs within the same group
+  filter(!is.na(Group)) %>%
+  # make the plot
+  ggplot(aes(x = Group, y = value)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1, outlier.shape = NA) +
+  # expand the y axis for the significance plot following
+  scale_y_continuous(expand = expansion(mult = c(0, .2))) +
+  # add significance testing
+  ggpubr::stat_compare_means(comparisons = list(c("SC_CC","ADV_SC"),
+                                                c("ADV_CC","SC_CC"),
+                                                c("ADV_CC", "ADV_SC")),
+                             aes(label=..p.adj..), p.adjust.methods = "bonferroni",
+                             method = "t.test", label = "p.signif", 
+                             size = 7, hide.ns = FALSE) +
+  stat_summary(fun = mean, colour="black", geom="text", size = 3,
+               show.legend = FALSE, 
+               vjust = 4, hjust = 1.5,
+               aes( label=round(..y.., digits=0)))
+```
+
+
