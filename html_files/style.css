@@ -16,7 +16,7 @@
     display:table;
 }
 
-@media screen and (max-width: 750px) {
+@media screen and (max-width: 1380px) {
     .column3 {
       width: 100%;
     }
