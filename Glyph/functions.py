@@ -7,6 +7,7 @@ from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import re
 import numpy as np
+import matplotlib.cm as cm
 
 
 
@@ -129,13 +130,39 @@ def doKmeans(embeddings,kmeansToTest,showIntertias=True,saveInertias=False):
     plt.ylabel("Inertia")
     
     if(saveInertias):
-        plt.savefig("html_files/inertias.png",bbox_inches="tight")
+        plt.savefig("../html_files/inertias.png",bbox_inches="tight")
     if(showIntertias):
         plt.show()
-    
-
-        
     return clusterDf
+
+'''
+Creates plt scatter of the clusters with clusters colored
+@param embeddings2d = pandas dataframe with 2 columns containing 2d features of the data
+@param clusters = pandas dataframe containing the cluster information
+@param clusterNum = number of clusters to use to color the points
+@param ignore = clusters to ignore (used to remove noisy clusters from data)
+'''
+def visualize2D(embeddings2d,clusters,clusterNum,ignore=[],savefig = False):
+    # number of clusters to test
+
+    # colors and title
+    colors = cm.tab20(np.linspace(0, 1, clusterNum))
+    plt.figure(figsize=(7,6))
+    plt.title("2D Representation of "+str(clusterNum)+" Clusters")
+    plt.xlabel("feature 1")
+    plt.ylabel("feature 2")
+    # scatter each cluster with the appropriate color
+    for cluster in range(clusterNum):
+        if cluster not in ignore:
+            indexList = clusters.index[clusters['Kmeans '+str(clusterNum)] == cluster].tolist()
+            this = embeddings2d.iloc[indexList]
+            plt.scatter(this[0],this[1],color = colors[cluster],label="Cluster "+str(cluster))
+
+    # add legend, show graph, and save graph to file
+    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    if savefig:
+        plt.savefig("../html_files/clusters.png",bbox_inches="tight")
+    plt.show()
 
 
 

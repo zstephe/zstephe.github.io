@@ -57,6 +57,11 @@
             supplementing the original list created by more manual data observation. When clustering, there was no clear elbow in the inertia test, so I stuck with cluster numbers around 20-30,
             since these were manageable to look through but wouldn't oversimplify the data too much.
         </p>
+        <p>
+            I went through multiple iterations to find which clustering method was best and created the best 2d visualization of the clusters. In terms of clustering algorithms, I tried both Kmeans and Spectral clustering (as well as messing around with the parameters on each).
+            For reducing the dimensionality of the data, I tried using PCA + TSNE, PCA alone, and UMAP. In the end, the best clustering result was using PCA initially to collapse the data to fewer dimensions
+             (from over 700 features to 55) and then clustering with Kmeans before reducing it the rest of the way to create 2D cluster graphs. I then went through and removed some of the clusters that I deemed random from the graphical representation.
+        </p>
         <p>The below graphs were created using "visualization.ipynb" when plotting inertias of clusters and visualization of clusters. Assuming that the setup file has been run, 
             running the visualization notebook should give you these plots.
         </p>
