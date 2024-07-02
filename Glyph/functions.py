@@ -126,6 +126,7 @@ def doKmeans(embeddings,kmeansToTest,showIntertias=True,saveInertias=False):
     # shows graph of inertias for the user to decide where to make the cutoff
     plt.figure(figsize=(8,6))
     plt.scatter(kmeansToTest,inertias)
+    plt.title("Kmeans Inertias")
     plt.xlabel("Number of Clusters")
     plt.ylabel("Inertia")
     
