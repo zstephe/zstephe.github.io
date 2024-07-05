@@ -143,7 +143,7 @@ Creates plt scatter of the clusters with clusters colored
 @param clusterNum = number of clusters to use to color the points
 @param ignore = clusters to ignore (used to remove noisy clusters from data)
 '''
-def visualize2D(embeddings2d,clusters,clusterNum,ignore=[],savefig = False):
+def visualize2D(embeddings2d,clusters,clusterNum,ignore=[],savefig = False,labels=None):
     # number of clusters to test
 
     # colors and title
@@ -157,7 +157,10 @@ def visualize2D(embeddings2d,clusters,clusterNum,ignore=[],savefig = False):
         if cluster not in ignore:
             indexList = clusters.index[clusters['Kmeans '+str(clusterNum)] == cluster].tolist()
             this = embeddings2d.iloc[indexList]
-            plt.scatter(this[0],this[1],color = colors[cluster],label="Cluster "+str(cluster))
+            if labels==None:
+                plt.scatter(this[0],this[1],color = colors[cluster],label="Cluster "+str(cluster))
+            else:
+                plt.scatter(this[0],this[1],color = colors[cluster],label=labels[cluster])
 
     # add legend, show graph, and save graph to file
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
