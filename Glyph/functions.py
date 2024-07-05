@@ -97,8 +97,8 @@ Takes in the number of clusters and the embeddings data and clusters the respons
 @param embeddings = pandas dataframe containing embeddings vectors in each row
 @return the kmeans clusters
 '''
-def fitKmeans(numClusters,embeddings):
-    kmeans =KMeans(n_clusters = numClusters)
+def fitKmeans(numClusters,embeddings,randomSeed = 5):
+    kmeans =KMeans(n_clusters = numClusters,random_state=randomSeed)
     kmeans.fit(embeddings)
     return kmeans
 
@@ -109,12 +109,12 @@ Does Kmeans clustering on a bunch of different numbers of clusters and returns t
 @param showInertias = whether to show the inertias graph (default to showing)
 @return dataframe containing the clustering data: each row contains the description,
 '''
-def doKmeans(embeddings,kmeansToTest,showIntertias=True,saveInertias=False):
+def doKmeans(embeddings,kmeansToTest,showIntertias=True,saveInertias=False,randomSeed = 5):
     # calculates inertias and kmeans clusters for each kmeans val to test
     inertias = []
     kmeansLabels = []
     for i in kmeansToTest:
-        kmeans = fitKmeans(i,embeddings.drop('Description',axis=1))
+        kmeans = fitKmeans(i,embeddings.drop('Description',axis=1),randomSeed=randomSeed)
         inertias.append(kmeans.inertia_)
         kmeansLabels.append(kmeans.labels_)
 
