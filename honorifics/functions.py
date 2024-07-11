@@ -61,6 +61,7 @@ def doKmeans(df,kmeansToTest,showIntertias=True,randomSeed=5):
         plt.figure(figsize=(8,6))
         plt.scatter(kmeansToTest,inertias)
         plt.xlabel("Number of Clusters")
+        plt.title('Kmeans Inertias')
         plt.ylabel("Inertia")
         plt.show()
     return clusterDf
@@ -113,23 +114,22 @@ def pValTest(df,colName,tukey=False):
 
 
 # checks if the types of answers in the second column are dependent on the first col value (returns p-vals)
-def compareCols(q1,q2,show=False):
+def compareCols(q1,q2):
     q2unique = q2.unique()
     q2counts = list(q2.value_counts())
-    q2percents = [x/len(q2) for x in q2counts]
+    q2percents = [x/(len(q2)) for x in q2counts]
     dividedCounts = []
     dividedPercents = []
+    dividedPercents.append(q2percents)
     for answer in q1.unique():
         dividedCounts.append([])
         for unique in q2unique:
             dividedCounts[-1].append(list(q2[q1==answer]).count(unique))
         dividedPercents.append([x/sum(dividedCounts[-1]) for x in dividedCounts[-1]])
-    if(show):
-        print(dividedPercents)
     p_vals = []
-    for i in range(len(dividedPercents)):
+    for i in range(1,len(dividedPercents)):
         p_vals.append(chisquare(dividedPercents[i],q2percents).pvalue)
-    return p_vals
+    return p_vals, dividedPercents
 
 
 def examineQuestion(q,df,ageCol):

@@ -142,8 +142,7 @@ Cat:5</code></pre>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    df[q] <span class="op">=</span> questions[q].<span class="bu">map</span>(<span class="bu">dict</span>)</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># fill nas with idks</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.fillna(<span class="bu">dict</span>[<span class="st">"I don</span><span class="ch">\'</span><span class="st">t know"</span>])</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
@@ -402,7 +401,7 @@ Cat:5</code></pre>
 <p>Now that we have our new dataframe, we can perform clustering (using Kmeans). We begin by looking at the inertias of different kmeans cluster numbers to determine an appropriate number of clusters for our data. As you can see from the below graph, there is no clear elbow. Further analysis will all be performed on sets of 6 clusters.</p>
 <div id="cell-9" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graph cluster inertias for 1-15 clusters</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>clusterDf <span class="op">=</span> doKmeans(df,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">15</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>clusterDf <span class="op">=</span> doKmeans(df,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">15</span>),randomSeed<span class="op">=</span>randomSeed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -515,196 +514,16 @@ F_onewayResult(statistic=1.2762466067371379, pvalue=0.28162824838667305)</code><
 </div>
 </div>
 <h2 class="anchored">
-Post Clustering analysis
+Part Two: Clustering Based on One Hot Encoding
 </h2>
-<p>Below you will find the analysis we did to see if age was correlated with any of the specific question responses, as well as if any one question response was correlated to another question response. Below, we look at if age is correlated with the response to each individual question. The three questions with statistically significant differences in age between responses were questions 7, 10, and 16.</p>
-<p>Result summary: - possible correlation between age and response in Q7, Q10 and Q16 - caveat that sample sizes for some responses within these questions were very small - correlation between question responses mostly for “i don’t know”</p>
+<p>In order to address the concerns from the mapping (where numbers that are close by will be clustered closer), we will then map the data using one-hot-encoding principals. Each question will be split into several columns with a column for each possible response, and the columns will simply contain binary data. The idea is that since the questions are now represented with binary data, all the numbers are equally distant from one another. We will repeat the same clustering process with the one-hot-encoded data.</p>
 <div id="cell-17" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add age col to dataframe</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Age"</span>]<span class="op">=</span>data[<span class="st">"Age"</span>]</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># does the pVal test for every question and prints the ones with significant p-vals</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> qcols:</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> pValTest(df,q)[<span class="dv">1</span>]</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> val<span class="op">&lt;</span><span class="fl">0.05</span>:</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(q)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(val)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Q7
-0.00012868932909781148
-Q10
-5.655010199102175e-05
-Q16
-0.0029334574030703015</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/Users/zoestephens/Desktop/summer2024/zstephe.github.io/honorifics/functions.py:99: SmallSampleWarning: After omitting NaNs, one or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements.
-  result = f_oneway(*rows,nan_policy="omit")</code></pre>
-</div>
-</div>
-<p>Now that we have identified the statistically significant questions, we will look more closely at each question and see which specific responses had different age ranges.</p>
-<h4 class="anchored">
-Question 7
-</h4>
-<p>Question text: This thought is nice.</p>
-<p>The “Listener” response has a significantly higher mean than all the other responses.</p>
-<div id="cell-20" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 7</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to be a higher age with the Listener answer, but not many datapoints</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q7"</span>,questions,df[<span class="st">"Age"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
-Comparison  Statistic  p-value  Lower CI  Upper CI
- (0 - 1)     -2.019     0.921   -10.485     6.446
- (0 - 2)    -27.769     0.000   -43.134   -12.405
- (0 - 3)      5.897     0.740    -9.467    21.262
- (1 - 0)      2.019     0.921    -6.446    10.485
- (1 - 2)    -25.750     0.001   -42.303    -9.197
- (1 - 3)      7.917     0.587    -8.636    24.470
- (2 - 0)     27.769     0.000    12.405    43.134
- (2 - 1)     25.750     0.001     9.197    42.303
- (2 - 3)     33.667     0.000    12.729    54.605
- (3 - 0)     -5.897     0.740   -21.262     9.467
- (3 - 1)     -7.917     0.587   -24.470     8.636
- (3 - 2)    -33.667     0.000   -54.605   -12.729
-
-Counts of each Response
-Q7
-Thought               45
-I don't know          14
-Listener               4
-Thinker of Thought     4
-Name: count, dtype: int64
-
-Group Means
-Thought : 25.564102564102566
-
-I don't know : 27.583333333333332
-
-Listener : 53.333333333333336
-
-Thinker of Thought : 19.666666666666668
-</code></pre>
-</div>
-</div>
-<h4 class="anchored">
-Question 10
-</h4>
-<p>Question text: The cat is big.</p>
-<p>The “Cat Owner” response was not included in the tukey test since there was only one such response. The “Listener” response has a significantly higher mean than all the other responses (excluding cat owner).</p>
-<div id="cell-22" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 10</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Listener and Cat owner responses but not many responses</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q10"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>SKIPPING A VALUE DUE TO LACK OF DATA (ONLY 1 POINT AVAILABLE)
-Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
-Comparison  Statistic  p-value  Lower CI  Upper CI
- (0 - 1)     -8.710     0.192   -20.630     3.210
- (0 - 2)    -30.460     0.000   -47.002   -13.918
- (1 - 0)      8.710     0.192    -3.210    20.630
- (1 - 2)    -21.750     0.029   -41.617    -1.883
- (2 - 0)     30.460     0.000    13.918    47.002
- (2 - 1)     21.750     0.029     1.883    41.617
-
-Counts of each Response
-Q10
-Cat             56
-I don't know     7
-Listener         3
-Cat owner        1
-Name: count, dtype: int64
-
-Group Means
-Cat : 25.04
-
-I don't know : 33.75
-
-Listener : 55.5
-
-Cat owner : 49.0
-</code></pre>
-</div>
-</div>
-<h4 class="anchored">
-Question 16
-</h4>
-<p>Question text: Mother’s murderer was cruel.</p>
-<p>The “Mother” response has a significantly higher mean than the “Murderer” and “Other” responses.</p>
-<div id="cell-24" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 16</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Mother but not many responses</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tukey shows difference between (Mother and Murderer) and (Mother and Listener)</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co"># participants who picked "Mother" older than those who picked "Murderer" or "Listener"</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q16"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
-Comparison  Statistic  p-value  Lower CI  Upper CI
- (0 - 1)    -18.662     0.003   -32.253    -5.071
- (0 - 2)      5.338     0.801    -8.253    18.929
- (0 - 3)     -6.262     0.840   -23.430    10.906
- (0 - 4)      2.738     0.996   -18.054    23.530
- (1 - 0)     18.662     0.003     5.071    32.253
- (1 - 2)     24.000     0.004     5.831    42.169
- (1 - 3)     12.400     0.461    -8.580    33.380
- (1 - 4)     21.400     0.103    -2.636    45.436
- (2 - 0)     -5.338     0.801   -18.929     8.253
- (2 - 1)    -24.000     0.004   -42.169    -5.831
- (2 - 3)    -11.600     0.528   -32.580     9.380
- (2 - 4)     -2.600     0.998   -26.636    21.436
- (3 - 0)      6.262     0.840   -10.906    23.430
- (3 - 1)    -12.400     0.461   -33.380     8.580
- (3 - 2)     11.600     0.528    -9.380    32.580
- (3 - 4)      9.000     0.867   -17.225    35.225
- (4 - 0)     -2.738     0.996   -23.530    18.054
- (4 - 1)    -21.400     0.103   -45.436     2.636
- (4 - 2)      2.600     0.998   -21.436    26.636
- (4 - 3)     -9.000     0.867   -35.225    17.225
-
-Counts of each Response
-Q16
-Murderer        49
-Mother           5
-Listener         5
-Other            4
-I don't know     4
-Name: count, dtype: int64
-
-Group Means
-Murderer : 25.738095238095237
-
-Mother : 44.4
-
-Other : 23.0
-
-Listener : 20.4
-
-I don't know : 32.0
-</code></pre>
-</div>
-</div>
-<div id="cell-25" class="cell" data-execution_count="223">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>hot_encoded_questions<span class="op">=</span>pd.DataFrame()</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> questions.columns:</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    length <span class="op">=</span> questions[col].nunique()</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    arr <span class="op">=</span> []</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(length):</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        arr.append(<span class="dv">0</span>)</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> {}</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i,val <span class="kw">in</span> <span class="bu">enumerate</span>(questions[col].unique(),<span class="dv">0</span>):</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        arr[i]<span class="op">=</span><span class="dv">1</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        temp[val]<span class="op">=</span><span class="bu">list</span>(arr)</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        arr[i]<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    hot_encoded_questions[col] <span class="op">=</span> questions[col].<span class="bu">map</span>(temp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-26" class="cell" data-execution_count="270">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>test <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> questions.columns:</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> val <span class="kw">in</span> questions[col].unique():</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>        test[col<span class="op">+</span><span class="st">"-"</span><span class="op">+</span>val]<span class="op">=</span>(questions[col]<span class="op">==</span>val).<span class="bu">map</span>({<span class="va">True</span>: <span class="dv">1</span>, <span class="va">False</span>: <span class="dv">0</span>})</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="270">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>encoded <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> questions.columns:</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> val <span class="kw">in</span> questions[col].unique():</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>        encoded[col<span class="op">+</span><span class="st">"-"</span><span class="op">+</span>val]<span class="op">=</span>(questions[col]<span class="op">==</span>val).<span class="bu">map</span>({<span class="va">True</span>: <span class="dv">1</span>, <span class="va">False</span>: <span class="dv">0</span>})</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>encoded</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 <div>
 
 
@@ -1007,500 +826,129 @@ I don't know : 32.0
 </div>
 </div>
 </div>
-<div id="cell-27" class="cell" data-execution_count="317">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co"># looks at Q7 bc there was a significant anova diff</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># not entirely sure if this is valid, bc there were only 4 responses and one's age was Nan</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>df[[<span class="st">"Q7"</span>,<span class="st">"Age"</span>]]</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> data[[<span class="st">"Q7"</span>,<span class="st">"Age"</span>]].dropna()</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>pValTest(d,<span class="st">"Q7"</span>,tukey<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co"># looks at Q10 bc there was a significant anova diff</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># once again not sure if significant diff one group had 3 vals, one of which was Nan and other had 1 val</span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co"># could be significant that the only people who didn't choose cat or idk where older???</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>df[[<span class="st">"Q10"</span>,<span class="st">"Age"</span>]]</span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> data[data[<span class="st">'Q10'</span>]<span class="op">!=</span><span class="st">"Cat owner"</span>][[<span class="st">"Q10"</span>,<span class="st">"Age"</span>]].dropna()</span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>pValTest(d,<span class="st">"Q10"</span>,tukey<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="317">
-<pre><code>(F_onewayResult(statistic=11.955941795772484, pvalue=5.346049499130906e-05),
- &lt;scipy.stats._hypotests.TukeyHSDResult at 0x15228c440&gt;)</code></pre>
-</div>
-</div>
-<div id="cell-28" class="cell" data-execution_count="237">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-29" class="cell" data-execution_count="238">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q1 <span class="kw">in</span> qcols:</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> q2 <span class="kw">in</span> qcols:</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> q1<span class="op">==</span>q2:</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        p_vals <span class="op">=</span> compareCols(questions[q1],questions[q2],show<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(p_vals)):</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> p_vals[p]<span class="op">&lt;</span><span class="fl">0.05</span>:</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"Q1: "</span><span class="op">+</span>q1)</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"Q2: "</span><span class="op">+</span>q2)</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"Q1 answer: "</span><span class="op">+</span>questions[q1].unique()[p])</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"p-val: "</span><span class="op">+</span><span class="bu">str</span>(p_vals[p]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[[0.603448275862069, 0.39655172413793105, 0.0], [0.875, 0.0, 0.125], [1.0, 0.0, 0.0]]
-[[0.6515151515151515, 0.3484848484848485, 0.0], [0.0, 0.0, 1.0]]
-Q1: Q3
-Q2: Q1
-Q1 answer: I don't know
-p-val: 4.6588861451034285e-15
-[[0.8787878787878788, 0.10606060606060606, 0.015151515151515152], [0.0, 1.0, 0.0]]
-Q1: Q3
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-[[0.5964912280701754, 0.40350877192982454, 0.0], [0.875, 0.0, 0.125], [1.0, 0.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.5, 0.0, 0.5]]
-Q1: Q4
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-Q1: Q4
-Q2: Q2
-Q1 answer: Listener
-p-val: 0.0003290185085717966
-[[1.0, 0.0], [0.875, 0.125], [1.0, 0.0]]
-[[0.5106382978723404, 0.48936170212765956, 0.0], [1.0, 0.0, 0.0], [0.75, 0.0, 0.25]]
-[[1.0, 0.0, 0.0], [0.6875, 0.25, 0.0625], [0.0, 1.0, 0.0]]
-Q1: Q5
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-[[1.0, 0.0], [1.0, 0.0], [0.75, 0.25]]
-[[1.0, 0.0, 0.0], [0.625, 0.25, 0.125], [0.0, 1.0, 0.0]]
-Q1: Q5
-Q2: Q4
-Q1 answer: I don't know
-p-val: 0.025034510149960162
-[[0.640625, 0.359375, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]]
-Q1: Q6
-Q2: Q1
-Q1 answer: I don't know
-p-val: 4.6588861451034285e-15
-[[0.875, 0.109375, 0.015625], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
-Q1: Q6
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-[[1.0, 0.0], [1.0, 0.0], [0.0, 1.0]]
-Q1: Q6
-Q2: Q3
-Q1 answer: I don't know
-p-val: 4.509229801533872e-16
-[[0.859375, 0.109375, 0.03125], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
-Q1: Q6
-Q2: Q4
-Q1 answer: I don't know
-p-val: 0.025034510149960162
-[[0.734375, 0.21875, 0.046875], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-Q1: Q6
-Q2: Q5
-Q1 answer: I don't know
-p-val: 0.0003801289578694631
-[[0.5111111111111111, 0.4888888888888889, 0.0], [0.8571428571428571, 0.07142857142857142, 0.07142857142857142], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.75, 0.0, 0.25], [0.75, 0.25, 0.0]]
-[[1.0, 0.0], [0.9285714285714286, 0.07142857142857142], [1.0, 0.0], [1.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.5, 0.0, 0.5], [0.75, 0.25, 0.0]]
-Q1: Q7
-Q2: Q4
-Q1 answer: Listener
-p-val: 0.021613658534777678
-[[0.8666666666666667, 0.13333333333333333, 0.0], [0.2857142857142857, 0.5, 0.21428571428571427], [0.25, 0.75, 0.0], [0.75, 0.0, 0.25]]
-[[0.9777777777777777, 0.022222222222222223, 0.0], [0.9285714285714286, 0.0, 0.07142857142857142], [0.75, 0.25, 0.0], [1.0, 0.0, 0.0]]
-[[0.5306122448979592, 0.46938775510204084, 0.0], [1.0, 0.0, 0.0], [0.75, 0.0, 0.25]]
-[[1.0, 0.0, 0.0], [0.6428571428571429, 0.2857142857142857, 0.07142857142857142], [0.0, 1.0, 0.0]]
-Q1: Q8
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-[[1.0, 0.0], [1.0, 0.0], [0.75, 0.25]]
-[[1.0, 0.0, 0.0], [0.5714285714285714, 0.2857142857142857, 0.14285714285714285], [0.0, 1.0, 0.0]]
-Q1: Q8
-Q2: Q4
-Q1 answer: I don't know
-p-val: 0.025034510149960162
-[[0.9591836734693877, 0.04081632653061224, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-Q1: Q8
-Q2: Q5
-Q1 answer: I don't know
-p-val: 0.0003801289578694631
-[[1.0, 0.0, 0.0], [0.8571428571428571, 0.14285714285714285, 0.0], [0.75, 0.0, 0.25]]
-[[0.8163265306122449, 0.10204081632653061, 0.02040816326530612, 0.061224489795918366], [0.35714285714285715, 0.42857142857142855, 0.21428571428571427, 0.0], [0.0, 0.75, 0.0, 0.25]]
-[[0.5416666666666666, 0.4583333333333333, 0.0], [0.9333333333333333, 0.06666666666666667, 0.0], [0.75, 0.0, 0.25]]
-[[0.9791666666666666, 0.020833333333333332, 0.0], [0.7333333333333333, 0.2, 0.06666666666666667], [0.0, 1.0, 0.0]]
-Q1: Q9
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-[[1.0, 0.0], [1.0, 0.0], [0.75, 0.25]]
-[[0.9791666666666666, 0.020833333333333332, 0.0], [0.6666666666666666, 0.2, 0.13333333333333333], [0.0, 1.0, 0.0]]
-Q1: Q9
-Q2: Q4
-Q1 answer: I don't know
-p-val: 0.025034510149960162
-[[0.8958333333333334, 0.10416666666666667, 0.0], [0.26666666666666666, 0.7333333333333333, 0.0], [0.0, 0.0, 1.0]]
-Q1: Q9
-Q2: Q5
-Q1 answer: I don't know
-p-val: 0.0003801289578694631
-[[1.0, 0.0, 0.0], [0.8666666666666667, 0.13333333333333333, 0.0], [0.75, 0.0, 0.25]]
-[[0.7916666666666666, 0.14583333333333334, 0.020833333333333332, 0.041666666666666664], [0.4666666666666667, 0.26666666666666666, 0.2, 0.06666666666666667], [0.0, 0.75, 0.0, 0.25]]
-[[0.9375, 0.0625, 0.0], [0.26666666666666666, 0.7333333333333333, 0.0], [0.0, 0.0, 1.0]]
-Q1: Q9
-Q2: Q8
-Q1 answer: I don't know
-p-val: 0.0003801289578694631
-[[0.5892857142857143, 0.4107142857142857, 0.0], [0.8571428571428571, 0.0, 0.14285714285714285], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[0.9642857142857143, 0.03571428571428571, 0.0], [0.14285714285714285, 0.8571428571428571, 0.0], [0.6666666666666666, 0.0, 0.3333333333333333], [1.0, 0.0, 0.0]]
-Q1: Q10
-Q2: Q2
-Q1 answer: Listener
-p-val: 0.030840478863240303
-[[1.0, 0.0], [0.8571428571428571, 0.14285714285714285], [1.0, 0.0], [1.0, 0.0]]
-[[0.9642857142857143, 0.03571428571428571, 0.0], [0.14285714285714285, 0.8571428571428571, 0.0], [0.3333333333333333, 0.0, 0.6666666666666666], [1.0, 0.0, 0.0]]
-Q1: Q10
-Q2: Q4
-Q1 answer: Listener
-p-val: 0.0009030373992900146
-[[0.8214285714285714, 0.17857142857142858, 0.0], [0.0, 0.42857142857142855, 0.5714285714285714], [0.3333333333333333, 0.6666666666666666, 0.0], [0.0, 1.0, 0.0]]
-[[0.9821428571428571, 0.017857142857142856, 0.0], [0.8571428571428571, 0.0, 0.14285714285714285], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
-Q1: Q10
-Q2: Q6
-Q1 answer: Cat owner
-p-val: 8.76424821944364e-08
-[[0.8035714285714286, 0.14285714285714285, 0.0, 0.05357142857142857], [0.0, 0.8571428571428571, 0.0, 0.14285714285714285], [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, 1.0, 0.0]]
-Q1: Q10
-Q2: Q7
-Q1 answer: Listener
-p-val: 0.0012759686347260967
-Q1: Q10
-Q2: Q7
-Q1 answer: Cat owner
-p-val: 0.0012759686347260967
-[[0.8571428571428571, 0.14285714285714285, 0.0], [0.0, 0.42857142857142855, 0.5714285714285714], [0.3333333333333333, 0.6666666666666666, 0.0], [0.0, 1.0, 0.0]]
-[[0.8392857142857143, 0.16071428571428573, 0.0], [0.0, 0.42857142857142855, 0.5714285714285714], [0.3333333333333333, 0.6666666666666666, 0.0], [0.0, 1.0, 0.0]]
-[[0.4666666666666667, 0.5333333333333333, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0], [0.88, 0.12, 0.0], [0.5, 0.5, 0.0], [0.5, 0.5, 0.0], [0.5, 0.0, 0.5]]
-Q1: Q11
-Q2: Q1
-Q1 answer: Other
-p-val: 0.00031285602982246213
-[[0.9666666666666667, 0.03333333333333333, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0], [0.8, 0.16, 0.04], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
-[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.5, 0.5]]
-Q1: Q11
-Q2: Q3
-Q1 answer: Other
-p-val: 6.321587792507115e-05
-[[0.9666666666666667, 0.03333333333333333, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0], [0.76, 0.16, 0.08], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
-[[0.9666666666666667, 0.03333333333333333, 0.0], [0.5, 0.16666666666666666, 0.3333333333333333], [0.44, 0.52, 0.04], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.5, 0.5]]
-[[1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.92, 0.08, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.0, 0.5]]
-Q1: Q11
-Q2: Q6
-Q1 answer: Other
-p-val: 0.00033350277393400234
-[[0.8666666666666667, 0.1, 0.0, 0.03333333333333333], [0.5, 0.3333333333333333, 0.0, 0.16666666666666666], [0.52, 0.24, 0.16, 0.08], [1.0, 0.0, 0.0, 0.0], [0.5, 0.5, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]]
-[[0.9666666666666667, 0.03333333333333333, 0.0], [0.5, 0.16666666666666666, 0.3333333333333333], [0.52, 0.44, 0.04], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.5, 0.5]]
-[[0.9666666666666667, 0.03333333333333333, 0.0], [0.6666666666666666, 0.0, 0.3333333333333333], [0.44, 0.52, 0.04], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.5, 0.5]]
-[[1.0, 0.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0], [0.72, 0.12, 0.12, 0.04], [1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]]
-Q1: Q11
-Q2: Q10
-Q1 answer: Other
-p-val: 0.03556654007389516
-[[0.48717948717948717, 0.5128205128205128, 0.0], [0.0, 0.5, 0.5], [1.0, 0.0, 0.0], [0.9333333333333333, 0.06666666666666667, 0.0], [0.8, 0.2, 0.0], [1.0, 0.0, 0.0]]
-Q1: Q12
-Q2: Q1
-Q1 answer: other
-p-val: 0.0002641138138155874
-[[0.9743589743589743, 0.02564102564102564, 0.0], [0.5, 0.5, 0.0], [0.0, 1.0, 0.0], [0.9333333333333333, 0.06666666666666667, 0.0], [0.8, 0.0, 0.2], [1.0, 0.0, 0.0]]
-Q1: Q12
-Q2: Q2
-Q1 answer: I don't know
-p-val: 0.025034510149960144
-[[1.0, 0.0], [0.5, 0.5], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0]]
-Q1: Q12
-Q2: Q3
-Q1 answer: other
-p-val: 6.321587792507115e-05
-[[0.9743589743589743, 0.02564102564102564, 0.0], [0.5, 0.5, 0.0], [0.0, 1.0, 0.0], [0.8666666666666667, 0.06666666666666667, 0.06666666666666667], [0.8, 0.0, 0.2], [1.0, 0.0, 0.0]]
-Q1: Q12
-Q2: Q4
-Q1 answer: I don't know
-p-val: 0.025034510149960162
-[[0.8974358974358975, 0.10256410256410256, 0.0], [0.5, 0.0, 0.5], [0.0, 0.4, 0.6], [0.4666666666666667, 0.5333333333333333, 0.0], [0.6, 0.4, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.5, 0.0, 0.5], [1.0, 0.0, 0.0], [0.8666666666666667, 0.13333333333333333, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-Q1: Q12
-Q2: Q6
-Q1 answer: other
-p-val: 0.00033350277393400234
-[[0.8717948717948718, 0.10256410256410256, 0.0, 0.02564102564102564], [0.5, 0.5, 0.0, 0.0], [0.0, 0.8, 0.0, 0.2], [0.4, 0.26666666666666666, 0.2, 0.13333333333333333], [0.8, 0.0, 0.2, 0.0], [0.0, 1.0, 0.0, 0.0]]
-[[0.8974358974358975, 0.10256410256410256, 0.0], [0.5, 0.0, 0.5], [0.0, 0.4, 0.6], [0.5333333333333333, 0.4666666666666667, 0.0], [0.8, 0.2, 0.0], [1.0, 0.0, 0.0]]
-[[0.9487179487179487, 0.05128205128205128, 0.0], [0.5, 0.0, 0.5], [0.0, 0.4, 0.6], [0.4, 0.6, 0.0], [0.6, 0.4, 0.0], [1.0, 0.0, 0.0]]
-[[0.9743589743589743, 0.02564102564102564, 0.0, 0.0], [0.5, 0.5, 0.0, 0.0], [0.2, 0.8, 0.0, 0.0], [0.7333333333333333, 0.06666666666666667, 0.13333333333333333, 0.06666666666666667], [0.8, 0.0, 0.2, 0.0], [1.0, 0.0, 0.0, 0.0]]
-[[0.7435897435897436, 0.07692307692307693, 0.07692307692307693, 0.05128205128205128, 0.02564102564102564, 0.02564102564102564], [0.0, 0.5, 0.0, 0.0, 0.0, 0.5], [0.0, 0.4, 0.6, 0.0, 0.0, 0.0], [0.06666666666666667, 0.0, 0.8666666666666667, 0.0, 0.06666666666666667, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]]
-[[0.6825396825396826, 0.31746031746031744, 0.0], [0.0, 0.5, 0.5], [0.0, 1.0, 0.0]]
-Q1: Q13
-Q2: Q1
-Q1 answer: I don't know
-p-val: 0.0002641138138155874
-[[0.873015873015873, 0.1111111111111111, 0.015873015873015872], [0.5, 0.5, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0], [0.5, 0.5], [1.0, 0.0]]
-Q1: Q13
-Q2: Q3
-Q1 answer: I don't know
-p-val: 6.321587792507115e-05
-[[0.8571428571428571, 0.1111111111111111, 0.031746031746031744], [0.5, 0.5, 0.0], [1.0, 0.0, 0.0]]
-[[0.6984126984126984, 0.25396825396825395, 0.047619047619047616], [0.5, 0.0, 0.5], [1.0, 0.0, 0.0]]
-[[0.9682539682539683, 0.031746031746031744, 0.0], [0.5, 0.0, 0.5], [1.0, 0.0, 0.0]]
-Q1: Q13
-Q2: Q6
-Q1 answer: I don't know
-p-val: 0.00033350277393400234
-[[0.6825396825396826, 0.19047619047619047, 0.06349206349206349, 0.06349206349206349], [0.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]
-[[0.7301587301587301, 0.2222222222222222, 0.047619047619047616], [0.5, 0.0, 0.5], [1.0, 0.0, 0.0]]
-[[0.7142857142857143, 0.23809523809523808, 0.047619047619047616], [0.5, 0.0, 0.5], [1.0, 0.0, 0.0]]
-[[0.8412698412698413, 0.09523809523809523, 0.047619047619047616, 0.015873015873015872], [0.5, 0.5, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]
-[[0.42857142857142855, 0.09523809523809523, 0.3968253968253968, 0.031746031746031744, 0.031746031746031744, 0.015873015873015872], [0.5, 0.0, 0.0, 0.0, 0.0, 0.5], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
-[[0.5873015873015873, 0.015873015873015872, 0.07936507936507936, 0.2222222222222222, 0.07936507936507936, 0.015873015873015872], [0.0, 0.5, 0.0, 0.5, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
-[[0.7931034482758621, 0.20689655172413793, 0.0], [0.8333333333333334, 0.16666666666666666, 0.0], [0.3, 0.7, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333], [1.0, 0.0, 0.0]]
-Q1: Q14
-Q2: Q1
-Q1 answer: I don't know
-p-val: 0.031097704322818276
-[[0.8275862068965517, 0.1724137931034483, 0.0], [0.75, 0.16666666666666666, 0.08333333333333333], [1.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.6666666666666666, 0.3333333333333333], [1.0, 0.0]]
-Q1: Q14
-Q2: Q3
-Q1 answer: I don't know
-p-val: 0.008640705019237688
-[[0.8275862068965517, 0.1724137931034483, 0.0], [0.6666666666666666, 0.16666666666666666, 0.16666666666666666], [1.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0], [1.0, 0.0, 0.0]]
-[[0.5172413793103449, 0.41379310344827586, 0.06896551724137931], [0.6666666666666666, 0.25, 0.08333333333333333], [1.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333], [1.0, 0.0, 0.0]]
-[[0.9310344827586207, 0.06896551724137931, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.6666666666666666, 0.0, 0.3333333333333333], [1.0, 0.0, 0.0]]
-Q1: Q14
-Q2: Q6
-Q1 answer: I don't know
-p-val: 0.03159169178637142
-[[0.6551724137931034, 0.2413793103448276, 0.034482758620689655, 0.06896551724137931], [0.3333333333333333, 0.3333333333333333, 0.25, 0.08333333333333333], [0.95, 0.05, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.0, 0.3333333333333333]]
-[[0.5862068965517241, 0.3448275862068966, 0.06896551724137931], [0.6666666666666666, 0.25, 0.08333333333333333], [1.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333], [1.0, 0.0, 0.0]]
-[[0.6206896551724138, 0.3103448275862069, 0.06896551724137931], [0.4166666666666667, 0.5, 0.08333333333333333], [1.0, 0.0, 0.0], [0.6666666666666666, 0.0, 0.3333333333333333], [1.0, 0.0, 0.0]]
-[[0.7931034482758621, 0.1724137931034483, 0.0, 0.034482758620689655], [0.6666666666666666, 0.08333333333333333, 0.25, 0.0], [1.0, 0.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]
-[[0.3448275862068966, 0.20689655172413793, 0.3448275862068966, 0.034482758620689655, 0.034482758620689655, 0.034482758620689655], [0.16666666666666666, 0.0, 0.75, 0.0, 0.08333333333333333, 0.0], [0.85, 0.0, 0.1, 0.05, 0.0, 0.0], [0.3333333333333333, 0.0, 0.3333333333333333, 0.0, 0.0, 0.3333333333333333], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]]
-[[0.5517241379310345, 0.034482758620689655, 0.10344827586206896, 0.2413793103448276, 0.06896551724137931, 0.0], [0.16666666666666666, 0.0, 0.16666666666666666, 0.4166666666666667, 0.25, 0.0], [0.95, 0.0, 0.0, 0.05, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.6666666666666666, 0.0, 0.3333333333333333]]
-Q1: Q14
-Q2: Q12
-Q1 answer: Listener
-p-val: 0.029699459203520226
-[[1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.85, 0.05, 0.1], [0.6666666666666666, 0.3333333333333333, 0.0], [1.0, 0.0, 0.0]]
-[[0.8095238095238095, 0.19047619047619047, 0.0], [0.7857142857142857, 0.21428571428571427, 0.0], [0.5555555555555556, 0.3333333333333333, 0.1111111111111111], [0.35714285714285715, 0.6428571428571429, 0.0], [0.25, 0.75, 0.0], [1.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0]]
-[[0.8571428571428571, 0.14285714285714285, 0.0], [0.7857142857142857, 0.14285714285714285, 0.07142857142857142], [0.6666666666666666, 0.3333333333333333, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0], [1.0, 0.0], [0.8888888888888888, 0.1111111111111111], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0]]
-[[0.8571428571428571, 0.14285714285714285, 0.0], [0.7142857142857143, 0.14285714285714285, 0.14285714285714285], [0.6666666666666666, 0.3333333333333333, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[0.7619047619047619, 0.19047619047619047, 0.047619047619047616], [0.5, 0.35714285714285715, 0.14285714285714285], [0.4444444444444444, 0.4444444444444444, 0.1111111111111111], [0.9285714285714286, 0.07142857142857142, 0.0], [1.0, 0.0, 0.0], [0.5, 0.5, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0]]
-[[0.9523809523809523, 0.047619047619047616, 0.0], [0.9285714285714286, 0.07142857142857142, 0.0], [0.8888888888888888, 0.0, 0.1111111111111111], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[0.6190476190476191, 0.2857142857142857, 0.047619047619047616, 0.047619047619047616], [0.42857142857142855, 0.14285714285714285, 0.21428571428571427, 0.21428571428571427], [0.4444444444444444, 0.5555555555555556, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0]]
-[[0.7619047619047619, 0.19047619047619047, 0.047619047619047616], [0.5714285714285714, 0.2857142857142857, 0.14285714285714285], [0.4444444444444444, 0.4444444444444444, 0.1111111111111111], [0.9285714285714286, 0.07142857142857142, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0]]
-[[0.6666666666666666, 0.2857142857142857, 0.047619047619047616], [0.5, 0.35714285714285715, 0.14285714285714285], [0.7777777777777778, 0.1111111111111111, 0.1111111111111111], [0.8571428571428571, 0.14285714285714285, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0]]
-[[0.8571428571428571, 0.09523809523809523, 0.0, 0.047619047619047616], [0.6428571428571429, 0.14285714285714285, 0.21428571428571427, 0.0], [0.7777777777777778, 0.2222222222222222, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0]]
-[[0.2857142857142857, 0.047619047619047616, 0.47619047619047616, 0.09523809523809523, 0.09523809523809523, 0.0], [0.21428571428571427, 0.14285714285714285, 0.6428571428571429, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.2222222222222222, 0.0, 0.0, 0.1111111111111111], [0.7857142857142857, 0.0, 0.21428571428571427, 0.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.5, 0.0, 0.5, 0.0, 0.0, 0.0], [0.6666666666666666, 0.0, 0.0, 0.0, 0.0, 0.3333333333333333]]
-[[0.47619047619047616, 0.0, 0.09523809523809523, 0.2857142857142857, 0.09523809523809523, 0.047619047619047616], [0.21428571428571427, 0.07142857142857142, 0.14285714285714285, 0.5, 0.07142857142857142, 0.0], [0.6666666666666666, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.0, 0.0], [0.8571428571428571, 0.0, 0.0, 0.07142857142857142, 0.07142857142857142, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.5, 0.0, 0.0, 0.0, 0.5, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
-[[1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.7777777777777778, 0.2222222222222222, 0.0], [0.9285714285714286, 0.0, 0.07142857142857142], [0.75, 0.0, 0.25], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[0.42857142857142855, 0.23809523809523808, 0.23809523809523808, 0.0, 0.09523809523809523], [0.5, 0.35714285714285715, 0.07142857142857142, 0.0, 0.07142857142857142], [0.6666666666666666, 0.0, 0.1111111111111111, 0.2222222222222222, 0.0], [0.2857142857142857, 0.07142857142857142, 0.5714285714285714, 0.07142857142857142, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0], [0.5, 0.0, 0.5, 0.0, 0.0], [0.6666666666666666, 0.3333333333333333, 0.0, 0.0, 0.0]]
-[[0.5510204081632653, 0.4489795918367347, 0.0], [1.0, 0.0, 0.0], [0.75, 0.25, 0.0], [1.0, 0.0, 0.0], [0.75, 0.0, 0.25]]
-[[0.9387755102040817, 0.061224489795918366, 0.0], [0.6, 0.4, 0.0], [0.5, 0.25, 0.25], [1.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
-[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.75, 0.25]]
-[[0.9387755102040817, 0.061224489795918366, 0.0], [0.4, 0.4, 0.2], [0.5, 0.25, 0.25], [1.0, 0.0, 0.0], [0.5, 0.5, 0.0]]
-[[0.8163265306122449, 0.16326530612244897, 0.02040816326530612], [0.2, 0.8, 0.0], [0.25, 0.5, 0.25], [1.0, 0.0, 0.0], [0.0, 0.5, 0.5]]
-[[1.0, 0.0, 0.0], [0.8, 0.2, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.5, 0.25, 0.25]]
-[[0.8163265306122449, 0.14285714285714285, 0.0, 0.04081632653061224], [0.2, 0.4, 0.4, 0.0], [0.25, 0.5, 0.25, 0.0], [0.6, 0.0, 0.0, 0.4], [0.0, 0.75, 0.25, 0.0]]
-[[0.8571428571428571, 0.12244897959183673, 0.02040816326530612], [0.2, 0.8, 0.0], [0.25, 0.5, 0.25], [1.0, 0.0, 0.0], [0.0, 0.5, 0.5]]
-[[0.8571428571428571, 0.12244897959183673, 0.02040816326530612], [0.2, 0.8, 0.0], [0.25, 0.5, 0.25], [0.6, 0.4, 0.0], [0.25, 0.25, 0.5]]
-[[0.9591836734693877, 0.04081632653061224, 0.0, 0.0], [0.4, 0.2, 0.4, 0.0], [0.25, 0.5, 0.25, 0.0], [1.0, 0.0, 0.0, 0.0], [0.25, 0.5, 0.0, 0.25]]
-[[0.5714285714285714, 0.08163265306122448, 0.2653061224489796, 0.04081632653061224, 0.04081632653061224, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.25, 0.25, 0.25, 0.0, 0.0, 0.25], [0.2, 0.0, 0.8, 0.0, 0.0, 0.0], [0.0, 0.25, 0.5, 0.0, 0.0, 0.25]]
-[[0.7142857142857143, 0.02040816326530612, 0.02040816326530612, 0.1836734693877551, 0.04081632653061224, 0.02040816326530612], [0.0, 0.0, 0.4, 0.6, 0.0, 0.0], [0.5, 0.0, 0.25, 0.0, 0.25, 0.0], [0.2, 0.0, 0.0, 0.4, 0.4, 0.0], [0.25, 0.25, 0.25, 0.25, 0.0, 0.0]]
-[[0.9591836734693877, 0.02040816326530612, 0.02040816326530612], [1.0, 0.0, 0.0], [0.75, 0.0, 0.25], [1.0, 0.0, 0.0], [0.75, 0.25, 0.0]]
-[[0.4489795918367347, 0.10204081632653061, 0.3673469387755102, 0.04081632653061224, 0.04081632653061224], [0.4, 0.6, 0.0, 0.0, 0.0], [0.5, 0.25, 0.25, 0.0, 0.0], [0.2, 0.4, 0.2, 0.0, 0.2], [0.5, 0.25, 0.0, 0.25, 0.0]]
-[[0.30612244897959184, 0.14285714285714285, 0.12244897959183673, 0.2857142857142857, 0.061224489795918366, 0.04081632653061224, 0.04081632653061224], [0.2, 0.6, 0.2, 0.0, 0.0, 0.0, 0.0], [0.25, 0.25, 0.0, 0.0, 0.25, 0.0, 0.25], [0.6, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0], [0.25, 0.25, 0.5, 0.0, 0.0, 0.0, 0.0]]
-[[0.4473684210526316, 0.5526315789473685, 0.0], [0.9090909090909091, 0.0, 0.09090909090909091], [1.0, 0.0, 0.0], [0.75, 0.25, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.45454545454545453, 0.5454545454545454, 0.0], [0.8888888888888888, 0.1111111111111111, 0.0], [0.75, 0.125, 0.125], [1.0, 0.0, 0.0]]
-[[1.0, 0.0], [0.9090909090909091, 0.09090909090909091], [1.0, 0.0], [1.0, 0.0], [1.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.45454545454545453, 0.5454545454545454, 0.0], [0.7777777777777778, 0.1111111111111111, 0.1111111111111111], [0.75, 0.125, 0.125], [1.0, 0.0, 0.0]]
-[[0.9736842105263158, 0.02631578947368421, 0.0], [0.09090909090909091, 0.5454545454545454, 0.36363636363636365], [0.3333333333333333, 0.6666666666666666, 0.0], [0.625, 0.375, 0.0], [1.0, 0.0, 0.0]]
-[[1.0, 0.0, 0.0], [0.8181818181818182, 0.09090909090909091, 0.09090909090909091], [0.8888888888888888, 0.1111111111111111, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[0.868421052631579, 0.10526315789473684, 0.0, 0.02631578947368421], [0.2727272727272727, 0.5454545454545454, 0.09090909090909091, 0.09090909090909091], [0.5555555555555556, 0.2222222222222222, 0.2222222222222222, 0.0], [0.5, 0.125, 0.125, 0.25], [0.0, 1.0, 0.0, 0.0]]
-[[0.9736842105263158, 0.02631578947368421, 0.0], [0.09090909090909091, 0.5454545454545454, 0.36363636363636365], [0.4444444444444444, 0.5555555555555556, 0.0], [0.75, 0.25, 0.0], [1.0, 0.0, 0.0]]
-[[0.9736842105263158, 0.02631578947368421, 0.0], [0.2727272727272727, 0.36363636363636365, 0.36363636363636365], [0.3333333333333333, 0.6666666666666666, 0.0], [0.5, 0.5, 0.0], [1.0, 0.0, 0.0]]
-[[0.9736842105263158, 0.02631578947368421, 0.0, 0.0], [0.45454545454545453, 0.45454545454545453, 0.0, 0.09090909090909091], [0.7777777777777778, 0.0, 0.2222222222222222, 0.0], [0.75, 0.125, 0.125, 0.0], [1.0, 0.0, 0.0, 0.0]]
-[[0.7105263157894737, 0.07894736842105263, 0.07894736842105263, 0.05263157894736842, 0.05263157894736842, 0.02631578947368421], [0.09090909090909091, 0.2727272727272727, 0.5454545454545454, 0.0, 0.0, 0.09090909090909091], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0], [0.25, 0.0, 0.75, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0, 0.0, 0.0]]
-[[0.8947368421052632, 0.02631578947368421, 0.0, 0.05263157894736842, 0.02631578947368421, 0.0], [0.2727272727272727, 0.09090909090909091, 0.36363636363636365, 0.18181818181818182, 0.09090909090909091, 0.0], [0.0, 0.0, 0.1111111111111111, 0.8888888888888888, 0.0, 0.0], [0.25, 0.0, 0.0, 0.375, 0.375, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]]
-Q1: Q17
-Q2: Q12
-Q1 answer: B
-p-val: 6.950304248714106e-13
-[[0.9210526315789473, 0.02631578947368421, 0.05263157894736842], [0.9090909090909091, 0.09090909090909091, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 0.0, 0.0]]
-[[0.3684210526315789, 0.10526315789473684, 0.5, 0.02631578947368421, 0.0], [0.6363636363636364, 0.18181818181818182, 0.0, 0.18181818181818182, 0.0], [0.4444444444444444, 0.4444444444444444, 0.0, 0.0, 0.1111111111111111], [0.5, 0.25, 0.125, 0.0, 0.125], [0.0, 0.0, 0.0, 0.0, 1.0]]
-Q1: Q17
-Q2: Q14
-Q1 answer: B
-p-val: 0.0002719395133342653
-[[0.2894736842105263, 0.07894736842105263, 0.10526315789473684, 0.3157894736842105, 0.10526315789473684, 0.02631578947368421, 0.07894736842105263], [0.36363636363636365, 0.18181818181818182, 0.45454545454545453, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.5555555555555556, 0.0, 0.1111111111111111, 0.0, 0.0, 0.0], [0.25, 0.5, 0.0, 0.125, 0.0, 0.125, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
-[[0.9210526315789473, 0.0, 0.05263157894736842, 0.02631578947368421, 0.0], [0.36363636363636365, 0.09090909090909091, 0.09090909090909091, 0.09090909090909091, 0.36363636363636365], [0.5555555555555556, 0.4444444444444444, 0.0, 0.0, 0.0], [0.5, 0.0, 0.125, 0.375, 0.0], [1.0, 0.0, 0.0, 0.0, 0.0]]</code></pre>
-</div>
-</div>
-<h2 class="anchored">
-CONCLUSIONS OF ABOVE
-</h2>
-<p>Only possible significance is i don’t know responses (this is definitely true from further looking below). Other tests not worth noting since they are where there was only one of a response.</p>
-<p>In terms of age differences in for specific question answers, the most clear one is question 16—question 7 and 10 have differences but could be due to very small sample size</p>
-<div id="cell-31" class="cell" data-execution_count="239">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>idkResults <span class="op">=</span> []</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q1 <span class="kw">in</span> qcols:</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> q2 <span class="kw">in</span> qcols:</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> q1<span class="op">==</span>q2:</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>        p_vals <span class="op">=</span> compareCols(questions[q1],questions[q2])</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(p_vals)):</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> p_vals[p]<span class="op">&lt;</span><span class="fl">0.05</span>:</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> questions[q1].unique()[p]<span class="op">==</span><span class="st">"I don't know"</span>:</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>                    idkResults.append([q1,q2,p_vals[p]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-32" class="cell" data-execution_count="240">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(questions[<span class="st">"Q2"</span>].value_counts())</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(questions[<span class="st">"Q4"</span>].value_counts())</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>ps <span class="op">=</span> compareCols(questions[<span class="st">"Q4"</span>],questions[<span class="st">"Q2"</span>],<span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Q2
-stone           58
-I don't know     8
-Listener         1
-Name: count, dtype: int64
-Q4
-Teacup          57
-I don't know     8
-Listener         2
-Name: count, dtype: int64
-[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.5, 0.0, 0.5]]</code></pre>
-</div>
-</div>
-<div id="cell-33" class="cell" data-execution_count="241">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>age <span class="op">=</span> data[<span class="st">"Age"</span>]</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>avgAge <span class="op">=</span> np.mean(age)</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(avgAge)</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>allIdks <span class="op">=</span> []</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> qcols:</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    q1 <span class="op">=</span> questions[q]</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    idkAge <span class="op">=</span> np.mean(age[q1<span class="op">==</span><span class="st">"I don't know"</span>])</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    notidkAge <span class="op">=</span> np.mean(age[q1<span class="op">!=</span><span class="st">"I don't know"</span>])</span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(q)</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(idkAge)</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(notidkAge)</span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    allIdks.append(idkAge)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>27.140350877192983
-Q1
-24.0
-27.196428571428573
-Q2
-32.0
-26.673076923076923
-Q3
-24.0
-27.196428571428573
-Q4
-32.0
-26.673076923076923
-Q5
-24.0
-27.196428571428573
-Q6
-24.0
-27.196428571428573
-Q7
-27.583333333333332
-27.022222222222222
-Q8
-24.0
-27.196428571428573
-Q9
-24.0
-27.196428571428573
-Q10
-33.75
-26.641509433962263
-Q11
-29.75
-26.943396226415093
-Q12
-44.0
-26.527272727272727
-Q13
-27.0
-27.145454545454545
-Q14
-22.666666666666668
-27.38888888888889
-Q15
-32.0
-26.346938775510203
-Q16
-32.0
-26.87037037037037
-Q17
-30.875
-26.53061224489796</code></pre>
-</div>
-</div>
-<div id="cell-34" class="cell" data-execution_count="242">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>questions[<span class="st">"Q12"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="242">
-<pre><code>Q12
-car             39
-father          15
-I don't know     5
-A                5
-other            2
-B                1
-Name: count, dtype: int64</code></pre>
-</div>
-</div>
-<div id="cell-35" class="cell" data-execution_count="243">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>np.mean(allIdks)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="243">
-<pre><code>28.683823529411764</code></pre>
-</div>
-</div>
-<div id="cell-36" class="cell" data-execution_count="244">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> df.drop(<span class="st">'Age'</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA()</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>pca.fit(df2)</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> pca.explained_variance_ratio_</span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the explained variance of each number of components</span></span>
-<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="co"># saves the plot to html_files</span></span>
-<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">18</span>),pca.explained_variance_ratio_.cumsum(),marker<span class="op">=</span><span class="st">'o'</span>,linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
-<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"PCA component cumulative explained variance ratio"</span>)</span>
-<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"# of components"</span>)</span>
-<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative explained variance"</span>)</span>
-<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../html_files/explainedVariance.png"</span>)</span>
-<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Once again we then perform Kmeans for a number of cluster values, and graph the inertias.</p>
+<div id="cell-19" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># graph cluster inertias for 1-15 clusters</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>encodedClusters <span class="op">=</span> doKmeans(encoded,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">15</span>),randomSeed<span class="op">=</span>randomSeed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="clustering_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="clustering_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
-<div id="cell-37" class="cell" data-execution_count="245">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(pca.components_)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="245">
+<p>Now we can once again look at some of the cluster sets and see if there are any significant age differences. Below we look at 3, 5, and 9 clusters, and none of the age differences are significant.</p>
+<div id="cell-21" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add age to the cluster df</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>encodedClusters[<span class="st">"Age"</span>]<span class="op">=</span>data[<span class="st">"Age"</span>]</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># print the cluster sets for 6 clusters</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Three Clusters: "</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>rows3 <span class="op">=</span> printClusterSetAge(encodedClusters,<span class="dv">3</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--------------------------------</span><span class="ch">\n</span><span class="st">Five Clusters: "</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>rows5 <span class="op">=</span> printClusterSetAge(encodedClusters,<span class="dv">5</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--------------------------------</span><span class="ch">\n</span><span class="st">Nine Clusters: "</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>rows9 <span class="op">=</span> printClusterSetAge(encodedClusters,<span class="dv">9</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># test significance of age diffs</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_oneway(<span class="op">*</span>rows3,nan_policy<span class="op">=</span><span class="st">"omit"</span>))</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_oneway(<span class="op">*</span>rows5,nan_policy<span class="op">=</span><span class="st">"omit"</span>))</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_oneway(<span class="op">*</span>rows9,nan_policy<span class="op">=</span><span class="st">"omit"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Three Clusters: 
+Cluster 0
+mean: 27.866666666666667
+
+Cluster 1
+mean: 26.37142857142857
+
+Cluster 2
+mean: 29.428571428571427
+
+--------------------------------
+Five Clusters: 
+Cluster 0
+mean: 30.666666666666668
+
+Cluster 1
+mean: 26.529411764705884
+
+Cluster 2
+mean: 30.333333333333332
+
+Cluster 3
+mean: 25.5
+
+Cluster 4
+mean: 24.0
+
+--------------------------------
+Nine Clusters: 
+Cluster 0
+mean: 19.0
+
+Cluster 1
+mean: 24.476190476190474
+
+Cluster 2
+mean: 37.0
+
+Cluster 3
+mean: 27.714285714285715
+
+Cluster 4
+mean: 29.846153846153847
+
+Cluster 5
+mean: 22.0
+
+Cluster 6
+mean: 25.0
+
+Cluster 7
+mean: 31.166666666666668
+
+Cluster 8
+mean: 24.0
+
+F_onewayResult(statistic=0.24425602643843397, pvalue=0.7841477565782357)
+F_onewayResult(statistic=0.33947594280809074, pvalue=0.8500898271491188)
+F_onewayResult(statistic=0.805665322752361, pvalue=0.6007790909458117)</code></pre>
+</div>
+</div>
+<h3 class="anchored">
+Importance of each Question in Explaining Variance
+</h3>
+<p>In an effort to find out which questions were most used in clustering responses, we performed PCA on the data and looked at the explained_variance_ratio</p>
+<div id="cell-23" class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df2 <span class="op">=</span> df.drop(<span class="st">'Age'</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>pca.fit(df2)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> pca.explained_variance_ratio_</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the explained variance of each number of components</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># saves the plot to html_files</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">18</span>),pca.explained_variance_ratio_.cumsum(),marker<span class="op">=</span><span class="st">'o'</span>,linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"PCA component cumulative explained variance ratio"</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"# of components"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative explained variance"</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../html_files/explainedVariance.png"</span>)</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="clustering_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>To determine which questions are most impactful, we can look at the components of the pca test. The below dataframe contains the information. The columns are the questions and each row represents a division of the participant responses into that many parts (row one keeps the data whole, row 2 divides the data into 2 parts, and so on). Higher numbers mean more impact on the division.</p>
+<div id="cell-25" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>componentImportance <span class="op">=</span> pd.DataFrame(pca.components_,columns<span class="op">=</span>questions.drop(<span class="st">'Age'</span>,axis<span class="op">=</span><span class="dv">1</span>).columns).<span class="bu">abs</span>()</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>componentImportance.index <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>componentImportance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="38">
 <div>
 
 
@@ -1508,29 +956,29 @@ Name: count, dtype: int64</code></pre>
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">0</th>
-<th data-quarto-table-cell-role="th">1</th>
-<th data-quarto-table-cell-role="th">2</th>
-<th data-quarto-table-cell-role="th">3</th>
-<th data-quarto-table-cell-role="th">4</th>
-<th data-quarto-table-cell-role="th">5</th>
-<th data-quarto-table-cell-role="th">6</th>
-<th data-quarto-table-cell-role="th">7</th>
-<th data-quarto-table-cell-role="th">8</th>
-<th data-quarto-table-cell-role="th">9</th>
-<th data-quarto-table-cell-role="th">10</th>
-<th data-quarto-table-cell-role="th">11</th>
-<th data-quarto-table-cell-role="th">12</th>
-<th data-quarto-table-cell-role="th">13</th>
-<th data-quarto-table-cell-role="th">14</th>
-<th data-quarto-table-cell-role="th">15</th>
-<th data-quarto-table-cell-role="th">16</th>
+<th data-quarto-table-cell-role="th">Q1</th>
+<th data-quarto-table-cell-role="th">Q2</th>
+<th data-quarto-table-cell-role="th">Q3</th>
+<th data-quarto-table-cell-role="th">Q4</th>
+<th data-quarto-table-cell-role="th">Q5</th>
+<th data-quarto-table-cell-role="th">Q6</th>
+<th data-quarto-table-cell-role="th">Q7</th>
+<th data-quarto-table-cell-role="th">Q8</th>
+<th data-quarto-table-cell-role="th">Q9</th>
+<th data-quarto-table-cell-role="th">Q10</th>
+<th data-quarto-table-cell-role="th">Q11</th>
+<th data-quarto-table-cell-role="th">Q12</th>
+<th data-quarto-table-cell-role="th">Q13</th>
+<th data-quarto-table-cell-role="th">Q14</th>
+<th data-quarto-table-cell-role="th">Q15</th>
+<th data-quarto-table-cell-role="th">Q16</th>
+<th data-quarto-table-cell-role="th">Q17</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>-0.065261</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.065261</td>
 <td>0.251104</td>
 <td>0.023802</td>
 <td>0.235609</td>
@@ -1542,81 +990,81 @@ Name: count, dtype: int64</code></pre>
 <td>0.234916</td>
 <td>0.107855</td>
 <td>0.286691</td>
-<td>-0.049657</td>
-<td>-0.223147</td>
-<td>-0.184399</td>
+<td>0.049657</td>
+<td>0.223147</td>
+<td>0.184399</td>
 <td>0.142972</td>
 <td>0.017312</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>-0.034498</td>
-<td>-0.034282</td>
-<td>-0.008624</td>
-<td>-0.027916</td>
-<td>-0.376160</td>
-<td>-0.065253</td>
+<td data-quarto-table-cell-role="th">2</td>
+<td>0.034498</td>
+<td>0.034282</td>
+<td>0.008624</td>
+<td>0.027916</td>
+<td>0.376160</td>
+<td>0.065253</td>
 <td>0.672585</td>
-<td>-0.336405</td>
-<td>-0.022740</td>
-<td>-0.002778</td>
+<td>0.336405</td>
+<td>0.022740</td>
+<td>0.002778</td>
 <td>0.010007</td>
 <td>0.341557</td>
-<td>-0.024030</td>
+<td>0.024030</td>
 <td>0.241424</td>
-<td>-0.300875</td>
-<td>-0.008091</td>
+<td>0.300875</td>
+<td>0.008091</td>
 <td>0.136923</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<td data-quarto-table-cell-role="th">3</td>
 <td>0.017298</td>
 <td>0.162432</td>
-<td>-0.013355</td>
+<td>0.013355</td>
 <td>0.176231</td>
 <td>0.083258</td>
-<td>-0.043949</td>
+<td>0.043949</td>
 <td>0.212373</td>
 <td>0.100657</td>
 <td>0.050326</td>
 <td>0.118706</td>
-<td>-0.497335</td>
-<td>-0.102624</td>
+<td>0.497335</td>
+<td>0.102624</td>
 <td>0.190375</td>
 <td>0.540256</td>
 <td>0.493382</td>
 <td>0.176271</td>
-<td>-0.029491</td>
+<td>0.029491</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>-0.107294</td>
-<td>-0.177194</td>
-<td>-0.053273</td>
-<td>-0.131784</td>
+<td data-quarto-table-cell-role="th">4</td>
+<td>0.107294</td>
+<td>0.177194</td>
+<td>0.053273</td>
+<td>0.131784</td>
 <td>0.114861</td>
 <td>0.046062</td>
-<td>-0.369638</td>
+<td>0.369638</td>
 <td>0.016921</td>
-<td>-0.022529</td>
-<td>-0.063464</td>
-<td>-0.465577</td>
+<td>0.022529</td>
+<td>0.063464</td>
+<td>0.465577</td>
 <td>0.739914</td>
-<td>-0.059523</td>
+<td>0.059523</td>
 <td>0.041608</td>
-<td>-0.051508</td>
-<td>-0.045428</td>
+<td>0.051508</td>
+<td>0.045428</td>
 <td>0.076758</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<td data-quarto-table-cell-role="th">5</td>
 <td>0.151197</td>
 <td>0.154113</td>
 <td>0.075536</td>
 <td>0.159133</td>
-<td>-0.030143</td>
+<td>0.030143</td>
 <td>0.066753</td>
-<td>-0.385226</td>
+<td>0.385226</td>
 <td>0.053496</td>
 <td>0.078174</td>
 <td>0.115552</td>
@@ -1624,249 +1072,249 @@ Name: count, dtype: int64</code></pre>
 <td>0.164288</td>
 <td>0.163233</td>
 <td>0.617430</td>
-<td>-0.293056</td>
+<td>0.293056</td>
 <td>0.156540</td>
-<td>-0.035276</td>
+<td>0.035276</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<td data-quarto-table-cell-role="th">6</td>
 <td>0.071561</td>
-<td>-0.243183</td>
+<td>0.243183</td>
 <td>0.044679</td>
-<td>-0.200587</td>
+<td>0.200587</td>
 <td>0.016023</td>
 <td>0.113983</td>
 <td>0.098938</td>
-<td>-0.093568</td>
+<td>0.093568</td>
 <td>0.015567</td>
 <td>0.097087</td>
 <td>0.482601</td>
 <td>0.346636</td>
 <td>0.201084</td>
-<td>-0.103533</td>
+<td>0.103533</td>
 <td>0.643739</td>
 <td>0.176187</td>
 <td>0.048914</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
+<td data-quarto-table-cell-role="th">7</td>
 <td>0.132750</td>
 <td>0.073289</td>
 <td>0.062504</td>
 <td>0.018598</td>
-<td>-0.158359</td>
+<td>0.158359</td>
 <td>0.198153</td>
-<td>-0.052940</td>
-<td>-0.101245</td>
+<td>0.052940</td>
+<td>0.101245</td>
 <td>0.019877</td>
 <td>0.122275</td>
-<td>-0.227548</td>
-<td>-0.026759</td>
+<td>0.227548</td>
+<td>0.026759</td>
 <td>0.779822</td>
-<td>-0.335693</td>
-<td>-0.222684</td>
+<td>0.335693</td>
+<td>0.222684</td>
 <td>0.227808</td>
 <td>0.072261</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
+<td data-quarto-table-cell-role="th">8</td>
 <td>0.065623</td>
 <td>0.535107</td>
 <td>0.033691</td>
 <td>0.392041</td>
-<td>-0.131747</td>
-<td>-0.418975</td>
-<td>-0.156695</td>
-<td>-0.212725</td>
+<td>0.131747</td>
+<td>0.418975</td>
+<td>0.156695</td>
+<td>0.212725</td>
 <td>0.063015</td>
-<td>-0.238469</td>
+<td>0.238469</td>
 <td>0.064382</td>
 <td>0.199240</td>
-<td>-0.030775</td>
-<td>-0.227396</td>
+<td>0.030775</td>
+<td>0.227396</td>
 <td>0.217592</td>
-<td>-0.010154</td>
+<td>0.010154</td>
 <td>0.295018</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
+<td data-quarto-table-cell-role="th">9</td>
 <td>0.167556</td>
 <td>0.153362</td>
 <td>0.106363</td>
 <td>0.119538</td>
-<td>-0.278873</td>
+<td>0.278873</td>
 <td>0.418319</td>
-<td>-0.121631</td>
-<td>-0.177975</td>
+<td>0.121631</td>
+<td>0.177975</td>
 <td>0.125248</td>
 <td>0.636194</td>
-<td>-0.117082</td>
+<td>0.117082</td>
 <td>0.001891</td>
-<td>-0.383401</td>
-<td>-0.111336</td>
+<td>0.383401</td>
+<td>0.111336</td>
 <td>0.104572</td>
-<td>-0.099849</td>
+<td>0.099849</td>
 <td>0.095570</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
-<td>-0.397828</td>
-<td>-0.074563</td>
-<td>-0.220901</td>
+<td data-quarto-table-cell-role="th">10</td>
+<td>0.397828</td>
+<td>0.074563</td>
+<td>0.220901</td>
 <td>0.008614</td>
-<td>-0.187006</td>
-<td>-0.271550</td>
-<td>-0.119426</td>
-<td>-0.053219</td>
-<td>-0.022225</td>
+<td>0.187006</td>
+<td>0.271550</td>
+<td>0.119426</td>
+<td>0.053219</td>
+<td>0.022225</td>
 <td>0.232402</td>
-<td>-0.007513</td>
-<td>-0.041512</td>
-<td>-0.191130</td>
-<td>-0.102171</td>
-<td>-0.054958</td>
+<td>0.007513</td>
+<td>0.041512</td>
+<td>0.191130</td>
+<td>0.102171</td>
+<td>0.054958</td>
 <td>0.731053</td>
-<td>-0.144166</td>
+<td>0.144166</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
-<td>-0.091008</td>
-<td>-0.120108</td>
-<td>-0.086236</td>
-<td>-0.148443</td>
+<td data-quarto-table-cell-role="th">11</td>
+<td>0.091008</td>
+<td>0.120108</td>
+<td>0.086236</td>
+<td>0.148443</td>
 <td>0.022125</td>
-<td>-0.044426</td>
-<td>-0.042613</td>
+<td>0.044426</td>
+<td>0.042613</td>
 <td>0.237062</td>
-<td>-0.156759</td>
+<td>0.156759</td>
 <td>0.128066</td>
 <td>0.031041</td>
-<td>-0.174227</td>
+<td>0.174227</td>
 <td>0.003407</td>
 <td>0.099919</td>
-<td>-0.038021</td>
+<td>0.038021</td>
 <td>0.046854</td>
 <td>0.895217</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
-<td>-0.236501</td>
-<td>-0.083503</td>
-<td>-0.175955</td>
+<td data-quarto-table-cell-role="th">12</td>
+<td>0.236501</td>
+<td>0.083503</td>
+<td>0.175955</td>
 <td>0.065746</td>
 <td>0.108361</td>
-<td>-0.466332</td>
-<td>-0.047012</td>
-<td>-0.103983</td>
-<td>-0.119214</td>
+<td>0.466332</td>
+<td>0.047012</td>
+<td>0.103983</td>
+<td>0.119214</td>
 <td>0.562783</td>
 <td>0.075347</td>
 <td>0.032176</td>
 <td>0.276599</td>
 <td>0.007225</td>
-<td>-0.000996</td>
-<td>-0.481516</td>
-<td>-0.116251</td>
+<td>0.000996</td>
+<td>0.481516</td>
+<td>0.116251</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12</td>
-<td>-0.065969</td>
-<td>-0.079904</td>
-<td>-0.050287</td>
-<td>-0.015687</td>
-<td>-0.580763</td>
-<td>-0.120766</td>
+<td data-quarto-table-cell-role="th">13</td>
+<td>0.065969</td>
+<td>0.079904</td>
+<td>0.050287</td>
+<td>0.015687</td>
+<td>0.580763</td>
+<td>0.120766</td>
 <td>0.000153</td>
 <td>0.615809</td>
 <td>0.449237</td>
-<td>-0.035272</td>
+<td>0.035272</td>
 <td>0.012067</td>
 <td>0.075993</td>
 <td>0.071665</td>
-<td>-0.047784</td>
+<td>0.047784</td>
 <td>0.067974</td>
-<td>-0.173856</td>
-<td>-0.064448</td>
+<td>0.173856</td>
+<td>0.064448</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13</td>
+<td data-quarto-table-cell-role="th">14</td>
 <td>0.735312</td>
-<td>-0.327546</td>
+<td>0.327546</td>
 <td>0.168556</td>
 <td>0.003407</td>
 <td>0.061300</td>
-<td>-0.468468</td>
+<td>0.468468</td>
 <td>0.028652</td>
 <td>0.077646</td>
 <td>0.019193</td>
 <td>0.152560</td>
-<td>-0.113667</td>
+<td>0.113667</td>
 <td>0.014410</td>
-<td>-0.123126</td>
-<td>-0.062373</td>
-<td>-0.091162</td>
+<td>0.123126</td>
+<td>0.062373</td>
+<td>0.091162</td>
 <td>0.170951</td>
-<td>-0.013459</td>
+<td>0.013459</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">14</td>
-<td>-0.108782</td>
-<td>-0.045630</td>
+<td data-quarto-table-cell-role="th">15</td>
+<td>0.108782</td>
+<td>0.045630</td>
 <td>0.057336</td>
-<td>-0.242140</td>
+<td>0.242140</td>
 <td>0.274132</td>
-<td>-0.103231</td>
-<td>-0.028039</td>
-<td>-0.340884</td>
+<td>0.103231</td>
+<td>0.028039</td>
+<td>0.340884</td>
 <td>0.824847</td>
 <td>0.003779</td>
-<td>-0.028799</td>
-<td>-0.120467</td>
+<td>0.028799</td>
+<td>0.120467</td>
 <td>0.014297</td>
 <td>0.050371</td>
-<td>-0.061665</td>
+<td>0.061665</td>
 <td>0.008789</td>
 <td>0.137921</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">15</td>
-<td>-0.178783</td>
-<td>-0.578241</td>
+<td data-quarto-table-cell-role="th">16</td>
+<td>0.178783</td>
+<td>0.578241</td>
 <td>0.153999</td>
 <td>0.742795</td>
 <td>0.021003</td>
 <td>0.122289</td>
-<td>-0.014037</td>
-<td>-0.092699</td>
+<td>0.014037</td>
+<td>0.092699</td>
 <td>0.100559</td>
-<td>-0.104948</td>
+<td>0.104948</td>
 <td>0.010608</td>
-<td>-0.044324</td>
+<td>0.044324</td>
 <td>0.021800</td>
-<td>-0.016238</td>
+<td>0.016238</td>
 <td>0.006439</td>
-<td>-0.019416</td>
+<td>0.019416</td>
 <td>0.098324</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">16</td>
-<td>-0.305679</td>
+<td data-quarto-table-cell-role="th">17</td>
+<td>0.305679</td>
 <td>0.052882</td>
 <td>0.909477</td>
-<td>-0.155977</td>
-<td>-0.045307</td>
-<td>-0.153519</td>
-<td>-0.014628</td>
+<td>0.155977</td>
+<td>0.045307</td>
+<td>0.153519</td>
+<td>0.014628</td>
 <td>0.069872</td>
-<td>-0.121472</td>
+<td>0.121472</td>
 <td>0.068292</td>
-<td>-0.033739</td>
-<td>-0.002613</td>
-<td>-0.001068</td>
+<td>0.033739</td>
+<td>0.002613</td>
+<td>0.001068</td>
 <td>0.011369</td>
 <td>0.000234</td>
 <td>0.021136</td>
-<td>-0.020673</td>
+<td>0.020673</td>
 </tr>
 </tbody>
 </table>
@@ -1874,349 +1322,16 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-38" class="cell" data-execution_count="267">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> PCA().fit(df2)</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>X_pc <span class="op">=</span> model.transform(df2)</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># number of components</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>n_pcs<span class="op">=</span> model.components_.shape[<span class="dv">0</span>]</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co"># get the index of the most important feature on EACH component</span></span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="co"># LIST COMPREHENSION HERE</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="co"># argmax gets the index of the biggest num</span></span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>comps <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_pcs):</span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    temp[<span class="st">'Components'</span>]<span class="op">=</span>np.<span class="bu">abs</span>(model.components_[i])</span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>    temp[<span class="st">'Question'</span>]<span class="op">=</span>qcols</span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>    temp <span class="op">=</span> temp.sort_values(by<span class="op">=</span><span class="st">'Components'</span>,ascending<span class="op">=</span><span class="va">False</span>,ignore_index<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(temp)</span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>    comps[<span class="bu">str</span>(i)<span class="op">+</span><span class="st">' Components'</span>]<span class="op">=</span>temp[<span class="st">'Question'</span>]</span>
-<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a><span class="co">#most_important = [np.abs(model.components_[i]).argmax() for i in range(n_pcs)]</span></span>
-<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a><span class="co">#initial_feature_names = qcols</span></span>
-<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a><span class="co"># get the names</span></span>
-<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a><span class="co">#most_important_names = [initial_feature_names[most_important[i]] for i in range(n_pcs)]</span></span>
-<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a><span class="co"># LIST COMPREHENSION HERE AGAIN</span></span>
-<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a><span class="co">#dic = {'PC{}'.format(i): most_important_names[i] for i in range(n_pcs)}</span></span>
-<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a><span class="co"># build the dataframe</span></span>
-<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a><span class="co">#features = pd.DataFrame(dic.items())</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    Components Question
-0     0.501119       Q5
-1     0.439146       Q8
-2     0.381117       Q7
-3     0.286691      Q12
-4     0.251104       Q2
-5     0.235609       Q4
-6     0.234916      Q10
-7     0.223147      Q14
-8     0.184399      Q15
-9     0.152758       Q9
-10    0.142972      Q16
-11    0.107855      Q11
-12    0.089672       Q6
-13    0.065261       Q1
-14    0.049657      Q13
-15    0.023802       Q3
-16    0.017312      Q17
-    Components Question
-0     0.672585       Q7
-1     0.376160       Q5
-2     0.341557      Q12
-3     0.336405       Q8
-4     0.300875      Q15
-5     0.241424      Q14
-6     0.136923      Q17
-7     0.065253       Q6
-8     0.034498       Q1
-9     0.034282       Q2
-10    0.027916       Q4
-11    0.024030      Q13
-12    0.022740       Q9
-13    0.010007      Q11
-14    0.008624       Q3
-15    0.008091      Q16
-16    0.002778      Q10
-    Components Question
-0     0.540256      Q14
-1     0.497335      Q11
-2     0.493382      Q15
-3     0.212373       Q7
-4     0.190375      Q13
-5     0.176271      Q16
-6     0.176231       Q4
-7     0.162432       Q2
-8     0.118706      Q10
-9     0.102624      Q12
-10    0.100657       Q8
-11    0.083258       Q5
-12    0.050326       Q9
-13    0.043949       Q6
-14    0.029491      Q17
-15    0.017298       Q1
-16    0.013355       Q3
-    Components Question
-0     0.739914      Q12
-1     0.465577      Q11
-2     0.369638       Q7
-3     0.177194       Q2
-4     0.131784       Q4
-5     0.114861       Q5
-6     0.107294       Q1
-7     0.076758      Q17
-8     0.063464      Q10
-9     0.059523      Q13
-10    0.053273       Q3
-11    0.051508      Q15
-12    0.046062       Q6
-13    0.045428      Q16
-14    0.041608      Q14
-15    0.022529       Q9
-16    0.016921       Q8
-    Components Question
-0     0.617430      Q14
-1     0.446973      Q11
-2     0.385226       Q7
-3     0.293056      Q15
-4     0.164288      Q12
-5     0.163233      Q13
-6     0.159133       Q4
-7     0.156540      Q16
-8     0.154113       Q2
-9     0.151197       Q1
-10    0.115552      Q10
-11    0.078174       Q9
-12    0.075536       Q3
-13    0.066753       Q6
-14    0.053496       Q8
-15    0.035276      Q17
-16    0.030143       Q5
-    Components Question
-0     0.643739      Q15
-1     0.482601      Q11
-2     0.346636      Q12
-3     0.243183       Q2
-4     0.201084      Q13
-5     0.200587       Q4
-6     0.176187      Q16
-7     0.113983       Q6
-8     0.103533      Q14
-9     0.098938       Q7
-10    0.097087      Q10
-11    0.093568       Q8
-12    0.071561       Q1
-13    0.048914      Q17
-14    0.044679       Q3
-15    0.016023       Q5
-16    0.015567       Q9
-    Components Question
-0     0.779822      Q13
-1     0.335693      Q14
-2     0.227808      Q16
-3     0.227548      Q11
-4     0.222684      Q15
-5     0.198153       Q6
-6     0.158359       Q5
-7     0.132750       Q1
-8     0.122275      Q10
-9     0.101245       Q8
-10    0.073289       Q2
-11    0.072261      Q17
-12    0.062504       Q3
-13    0.052940       Q7
-14    0.026759      Q12
-15    0.019877       Q9
-16    0.018598       Q4
-    Components Question
-0     0.535107       Q2
-1     0.418975       Q6
-2     0.392041       Q4
-3     0.295018      Q17
-4     0.238469      Q10
-5     0.227396      Q14
-6     0.217592      Q15
-7     0.212725       Q8
-8     0.199240      Q12
-9     0.156695       Q7
-10    0.131747       Q5
-11    0.065623       Q1
-12    0.064382      Q11
-13    0.063015       Q9
-14    0.033691       Q3
-15    0.030775      Q13
-16    0.010154      Q16
-    Components Question
-0     0.636194      Q10
-1     0.418319       Q6
-2     0.383401      Q13
-3     0.278873       Q5
-4     0.177975       Q8
-5     0.167556       Q1
-6     0.153362       Q2
-7     0.125248       Q9
-8     0.121631       Q7
-9     0.119538       Q4
-10    0.117082      Q11
-11    0.111336      Q14
-12    0.106363       Q3
-13    0.104572      Q15
-14    0.099849      Q16
-15    0.095570      Q17
-16    0.001891      Q12
-    Components Question
-0     0.731053      Q16
-1     0.397828       Q1
-2     0.271550       Q6
-3     0.232402      Q10
-4     0.220901       Q3
-5     0.191130      Q13
-6     0.187006       Q5
-7     0.144166      Q17
-8     0.119426       Q7
-9     0.102171      Q14
-10    0.074563       Q2
-11    0.054958      Q15
-12    0.053219       Q8
-13    0.041512      Q12
-14    0.022225       Q9
-15    0.008614       Q4
-16    0.007513      Q11
-    Components Question
-0     0.895217      Q17
-1     0.237062       Q8
-2     0.174227      Q12
-3     0.156759       Q9
-4     0.148443       Q4
-5     0.128066      Q10
-6     0.120108       Q2
-7     0.099919      Q14
-8     0.091008       Q1
-9     0.086236       Q3
-10    0.046854      Q16
-11    0.044426       Q6
-12    0.042613       Q7
-13    0.038021      Q15
-14    0.031041      Q11
-15    0.022125       Q5
-16    0.003407      Q13
-    Components Question
-0     0.562783      Q10
-1     0.481516      Q16
-2     0.466332       Q6
-3     0.276599      Q13
-4     0.236501       Q1
-5     0.175955       Q3
-6     0.119214       Q9
-7     0.116251      Q17
-8     0.108361       Q5
-9     0.103983       Q8
-10    0.083503       Q2
-11    0.075347      Q11
-12    0.065746       Q4
-13    0.047012       Q7
-14    0.032176      Q12
-15    0.007225      Q14
-16    0.000996      Q15
-    Components Question
-0     0.615809       Q8
-1     0.580763       Q5
-2     0.449237       Q9
-3     0.173856      Q16
-4     0.120766       Q6
-5     0.079904       Q2
-6     0.075993      Q12
-7     0.071665      Q13
-8     0.067974      Q15
-9     0.065969       Q1
-10    0.064448      Q17
-11    0.050287       Q3
-12    0.047784      Q14
-13    0.035272      Q10
-14    0.015687       Q4
-15    0.012067      Q11
-16    0.000153       Q7
-    Components Question
-0     0.735312       Q1
-1     0.468468       Q6
-2     0.327546       Q2
-3     0.170951      Q16
-4     0.168556       Q3
-5     0.152560      Q10
-6     0.123126      Q13
-7     0.113667      Q11
-8     0.091162      Q15
-9     0.077646       Q8
-10    0.062373      Q14
-11    0.061300       Q5
-12    0.028652       Q7
-13    0.019193       Q9
-14    0.014410      Q12
-15    0.013459      Q17
-16    0.003407       Q4
-    Components Question
-0     0.824847       Q9
-1     0.340884       Q8
-2     0.274132       Q5
-3     0.242140       Q4
-4     0.137921      Q17
-5     0.120467      Q12
-6     0.108782       Q1
-7     0.103231       Q6
-8     0.061665      Q15
-9     0.057336       Q3
-10    0.050371      Q14
-11    0.045630       Q2
-12    0.028799      Q11
-13    0.028039       Q7
-14    0.014297      Q13
-15    0.008789      Q16
-16    0.003779      Q10
-    Components Question
-0     0.742795       Q4
-1     0.578241       Q2
-2     0.178783       Q1
-3     0.153999       Q3
-4     0.122289       Q6
-5     0.104948      Q10
-6     0.100559       Q9
-7     0.098324      Q17
-8     0.092699       Q8
-9     0.044324      Q12
-10    0.021800      Q13
-11    0.021003       Q5
-12    0.019416      Q16
-13    0.016238      Q14
-14    0.014037       Q7
-15    0.010608      Q11
-16    0.006439      Q15
-    Components Question
-0     0.909477       Q3
-1     0.305679       Q1
-2     0.155977       Q4
-3     0.153519       Q6
-4     0.121472       Q9
-5     0.069872       Q8
-6     0.068292      Q10
-7     0.052882       Q2
-8     0.045307       Q5
-9     0.033739      Q11
-10    0.021136      Q16
-11    0.020673      Q17
-12    0.014628       Q7
-13    0.011369      Q14
-14    0.002613      Q12
-15    0.001068      Q13
-16    0.000234      Q15</code></pre>
-</div>
-</div>
-<div id="cell-39" class="cell" data-execution_count="268">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>comps</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="268">
+<p>To make sense of the above data, we look at the sum and mean for each column. Then we do statistical tests on it, and the p-val is very much not significant.</p>
+<div id="cell-27" class="cell" data-execution_count="54">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>totalImportance <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>totalImportance[<span class="st">'Sum'</span>]<span class="op">=</span>componentImportance.<span class="bu">sum</span>()</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>totalImportance[<span class="st">'Mean'</span>]<span class="op">=</span>componentImportance.mean()</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">'''for col in totalImportance.columns:</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">    info = [componentImportance.sum().iloc[0],componentImportance.mean().iloc[0]]</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">    totalImportance[col]=info'''</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>totalImportance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="54">
 <div>
 
 
@@ -2224,365 +1339,95 @@ Name: count, dtype: int64</code></pre>
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">0 Components</th>
-<th data-quarto-table-cell-role="th">1 Components</th>
-<th data-quarto-table-cell-role="th">2 Components</th>
-<th data-quarto-table-cell-role="th">3 Components</th>
-<th data-quarto-table-cell-role="th">4 Components</th>
-<th data-quarto-table-cell-role="th">5 Components</th>
-<th data-quarto-table-cell-role="th">6 Components</th>
-<th data-quarto-table-cell-role="th">7 Components</th>
-<th data-quarto-table-cell-role="th">8 Components</th>
-<th data-quarto-table-cell-role="th">9 Components</th>
-<th data-quarto-table-cell-role="th">10 Components</th>
-<th data-quarto-table-cell-role="th">11 Components</th>
-<th data-quarto-table-cell-role="th">12 Components</th>
-<th data-quarto-table-cell-role="th">13 Components</th>
-<th data-quarto-table-cell-role="th">14 Components</th>
-<th data-quarto-table-cell-role="th">15 Components</th>
-<th data-quarto-table-cell-role="th">16 Components</th>
+<th data-quarto-table-cell-role="th">Sum</th>
+<th data-quarto-table-cell-role="th">Mean</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>Q5</td>
-<td>Q7</td>
-<td>Q14</td>
-<td>Q12</td>
-<td>Q14</td>
-<td>Q15</td>
-<td>Q13</td>
-<td>Q2</td>
-<td>Q10</td>
-<td>Q16</td>
-<td>Q17</td>
-<td>Q10</td>
-<td>Q8</td>
-<td>Q1</td>
-<td>Q9</td>
-<td>Q4</td>
-<td>Q3</td>
+<td data-quarto-table-cell-role="th">Q1</td>
+<td>2.932899</td>
+<td>0.172523</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>Q8</td>
-<td>Q5</td>
-<td>Q11</td>
-<td>Q11</td>
-<td>Q11</td>
-<td>Q11</td>
-<td>Q14</td>
-<td>Q6</td>
-<td>Q6</td>
-<td>Q1</td>
-<td>Q8</td>
-<td>Q16</td>
-<td>Q5</td>
-<td>Q6</td>
-<td>Q8</td>
-<td>Q2</td>
-<td>Q1</td>
+<td data-quarto-table-cell-role="th">Q2</td>
+<td>3.146443</td>
+<td>0.185085</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>Q7</td>
-<td>Q12</td>
-<td>Q15</td>
-<td>Q7</td>
-<td>Q7</td>
-<td>Q12</td>
-<td>Q16</td>
-<td>Q4</td>
-<td>Q13</td>
-<td>Q6</td>
-<td>Q12</td>
-<td>Q6</td>
-<td>Q9</td>
-<td>Q2</td>
-<td>Q5</td>
-<td>Q1</td>
-<td>Q4</td>
+<td data-quarto-table-cell-role="th">Q3</td>
+<td>2.244574</td>
+<td>0.132034</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>Q12</td>
-<td>Q8</td>
-<td>Q7</td>
-<td>Q2</td>
-<td>Q15</td>
-<td>Q2</td>
-<td>Q11</td>
-<td>Q17</td>
-<td>Q5</td>
-<td>Q10</td>
-<td>Q9</td>
-<td>Q13</td>
-<td>Q16</td>
-<td>Q16</td>
-<td>Q4</td>
-<td>Q3</td>
-<td>Q6</td>
+<td data-quarto-table-cell-role="th">Q4</td>
+<td>2.844246</td>
+<td>0.167309</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>Q2</td>
-<td>Q15</td>
-<td>Q13</td>
-<td>Q4</td>
-<td>Q12</td>
-<td>Q13</td>
-<td>Q15</td>
-<td>Q10</td>
-<td>Q8</td>
-<td>Q3</td>
-<td>Q4</td>
-<td>Q1</td>
-<td>Q6</td>
-<td>Q3</td>
-<td>Q17</td>
-<td>Q6</td>
-<td>Q9</td>
+<td data-quarto-table-cell-role="th">Q5</td>
+<td>2.990540</td>
+<td>0.175914</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>Q4</td>
-<td>Q14</td>
-<td>Q16</td>
-<td>Q5</td>
-<td>Q13</td>
-<td>Q4</td>
-<td>Q6</td>
-<td>Q14</td>
-<td>Q1</td>
-<td>Q13</td>
-<td>Q10</td>
-<td>Q3</td>
-<td>Q2</td>
-<td>Q10</td>
-<td>Q12</td>
-<td>Q10</td>
-<td>Q8</td>
+<td data-quarto-table-cell-role="th">Q6</td>
+<td>3.211700</td>
+<td>0.188924</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
-<td>Q10</td>
-<td>Q17</td>
-<td>Q4</td>
-<td>Q1</td>
-<td>Q4</td>
-<td>Q16</td>
-<td>Q5</td>
-<td>Q15</td>
-<td>Q2</td>
-<td>Q5</td>
-<td>Q2</td>
-<td>Q9</td>
-<td>Q12</td>
-<td>Q13</td>
-<td>Q1</td>
-<td>Q9</td>
-<td>Q10</td>
+<td data-quarto-table-cell-role="th">Q7</td>
+<td>2.745703</td>
+<td>0.161512</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
-<td>Q14</td>
-<td>Q6</td>
-<td>Q2</td>
-<td>Q17</td>
-<td>Q16</td>
-<td>Q6</td>
-<td>Q1</td>
-<td>Q8</td>
-<td>Q9</td>
-<td>Q17</td>
-<td>Q14</td>
-<td>Q17</td>
-<td>Q13</td>
-<td>Q11</td>
-<td>Q6</td>
-<td>Q17</td>
-<td>Q2</td>
+<td data-quarto-table-cell-role="th">Q8</td>
+<td>3.123313</td>
+<td>0.183724</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
-<td>Q15</td>
-<td>Q1</td>
-<td>Q10</td>
-<td>Q10</td>
-<td>Q2</td>
-<td>Q14</td>
-<td>Q10</td>
-<td>Q12</td>
-<td>Q7</td>
-<td>Q7</td>
-<td>Q1</td>
-<td>Q5</td>
-<td>Q15</td>
-<td>Q15</td>
-<td>Q15</td>
-<td>Q8</td>
-<td>Q5</td>
+<td data-quarto-table-cell-role="th">Q9</td>
+<td>2.363739</td>
+<td>0.139043</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">9</td>
-<td>Q9</td>
-<td>Q2</td>
-<td>Q12</td>
-<td>Q13</td>
-<td>Q1</td>
-<td>Q7</td>
-<td>Q8</td>
-<td>Q7</td>
-<td>Q4</td>
-<td>Q14</td>
-<td>Q3</td>
-<td>Q8</td>
-<td>Q1</td>
-<td>Q8</td>
-<td>Q3</td>
-<td>Q12</td>
-<td>Q11</td>
+<td data-quarto-table-cell-role="th">Q10</td>
+<td>2.917543</td>
+<td>0.171620</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">10</td>
-<td>Q16</td>
-<td>Q4</td>
-<td>Q8</td>
-<td>Q3</td>
-<td>Q10</td>
-<td>Q10</td>
-<td>Q2</td>
-<td>Q5</td>
-<td>Q11</td>
-<td>Q2</td>
-<td>Q16</td>
-<td>Q2</td>
-<td>Q17</td>
-<td>Q14</td>
-<td>Q14</td>
-<td>Q13</td>
-<td>Q16</td>
+<td data-quarto-table-cell-role="th">Q11</td>
+<td>2.732142</td>
+<td>0.160714</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">11</td>
-<td>Q11</td>
-<td>Q13</td>
-<td>Q5</td>
-<td>Q15</td>
-<td>Q9</td>
-<td>Q8</td>
-<td>Q17</td>
-<td>Q1</td>
-<td>Q14</td>
-<td>Q15</td>
-<td>Q6</td>
-<td>Q11</td>
-<td>Q3</td>
-<td>Q5</td>
-<td>Q2</td>
-<td>Q5</td>
-<td>Q17</td>
+<td data-quarto-table-cell-role="th">Q12</td>
+<td>2.715321</td>
+<td>0.159725</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12</td>
-<td>Q6</td>
-<td>Q9</td>
-<td>Q9</td>
-<td>Q6</td>
-<td>Q3</td>
-<td>Q1</td>
-<td>Q3</td>
-<td>Q11</td>
-<td>Q3</td>
-<td>Q8</td>
-<td>Q7</td>
-<td>Q4</td>
-<td>Q14</td>
-<td>Q7</td>
-<td>Q11</td>
-<td>Q16</td>
-<td>Q7</td>
+<td data-quarto-table-cell-role="th">Q13</td>
+<td>2.584992</td>
+<td>0.152058</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">13</td>
-<td>Q1</td>
-<td>Q11</td>
-<td>Q6</td>
-<td>Q16</td>
-<td>Q6</td>
-<td>Q17</td>
-<td>Q7</td>
-<td>Q9</td>
-<td>Q15</td>
-<td>Q12</td>
-<td>Q15</td>
-<td>Q7</td>
-<td>Q10</td>
-<td>Q9</td>
-<td>Q7</td>
-<td>Q14</td>
-<td>Q14</td>
+<td data-quarto-table-cell-role="th">Q14</td>
+<td>2.839274</td>
+<td>0.167016</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">14</td>
-<td>Q13</td>
-<td>Q3</td>
-<td>Q17</td>
-<td>Q14</td>
-<td>Q8</td>
-<td>Q3</td>
-<td>Q12</td>
-<td>Q3</td>
-<td>Q16</td>
-<td>Q9</td>
-<td>Q11</td>
-<td>Q12</td>
-<td>Q4</td>
-<td>Q12</td>
-<td>Q13</td>
-<td>Q7</td>
-<td>Q12</td>
+<td data-quarto-table-cell-role="th">Q15</td>
+<td>2.833253</td>
+<td>0.166662</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">15</td>
-<td>Q3</td>
-<td>Q16</td>
-<td>Q1</td>
-<td>Q9</td>
-<td>Q17</td>
-<td>Q5</td>
-<td>Q9</td>
-<td>Q13</td>
-<td>Q17</td>
-<td>Q4</td>
-<td>Q5</td>
-<td>Q14</td>
-<td>Q11</td>
-<td>Q17</td>
-<td>Q16</td>
-<td>Q11</td>
-<td>Q13</td>
+<td data-quarto-table-cell-role="th">Q16</td>
+<td>2.696870</td>
+<td>0.158639</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">16</td>
-<td>Q17</td>
-<td>Q10</td>
-<td>Q3</td>
-<td>Q8</td>
-<td>Q5</td>
-<td>Q9</td>
-<td>Q4</td>
-<td>Q16</td>
-<td>Q12</td>
-<td>Q11</td>
-<td>Q13</td>
-<td>Q15</td>
-<td>Q7</td>
-<td>Q4</td>
-<td>Q10</td>
-<td>Q15</td>
-<td>Q15</td>
+<td data-quarto-table-cell-role="th">Q17</td>
+<td>2.297982</td>
+<td>0.135175</td>
 </tr>
 </tbody>
 </table>
@@ -2590,22 +1435,214 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 </div>
-<div id="cell-40" class="cell" data-execution_count="248">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>cost <span class="op">=</span> []</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>):</span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    kmode <span class="op">=</span> KModes(n_clusters<span class="op">=</span>k,init<span class="op">=</span><span class="st">"random"</span>,n_init<span class="op">=</span><span class="dv">5</span>,random_state<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    kmode.fit_predict(test)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    cost.append(kmode.cost_)</span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>plt.scatter(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">10</span>),cost)</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="clustering_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
-</figure>
+<div id="cell-28" class="cell" data-execution_count="58">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> []</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> componentImportance.columns:</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    l.append(<span class="bu">list</span>(componentImportance[col]))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>f_oneway(<span class="op">*</span>l)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="58">
+<pre><code>F_onewayResult(statistic=0.1390352384535262, pvalue=0.9999747570798088)</code></pre>
 </div>
 </div>
+<h2 class="anchored">
+Column by Column Analysis
+</h2>
+<p>Below you will find the analysis we did to see if age was correlated with any of the specific question responses, as well as if any one question response was correlated to another question response. Below, we look at if age is correlated with the response to each individual question. The three questions with statistically significant differences in age between responses were questions 7, 10, and 16.</p>
+<h3 class="anchored">
+Age Analysis
+</h3>
+<p>To look at correlation between ages and responses to each specific question, we do anova tests to look for differences in all the questions and identify those with significant differences.</p>
+<div id="cell-30" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add age col to dataframe</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Age"</span>]<span class="op">=</span>data[<span class="st">"Age"</span>]</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># does the pVal test for every question and prints the ones with significant p-vals</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> qcols:</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> pValTest(df,q)[<span class="dv">1</span>]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> val<span class="op">&lt;</span><span class="fl">0.05</span>:</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(q)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(val)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Q7
+0.00012868932909781148
+Q10
+5.655010199102175e-05
+Q16
+0.0029334574030703015</code></pre>
 </div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/zoestephens/Desktop/summer2024/zstephe.github.io/honorifics/functions.py:100: SmallSampleWarning: After omitting NaNs, one or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements.
+  result = f_oneway(*rows,nan_policy="omit")</code></pre>
+</div>
+</div>
+<p>Now that we have identified the statistically significant questions, we will look more closely at each question and see which specific responses had different age ranges.</p>
+<h4 class="anchored">
+Question 7
+</h4>
+<p>Question text: This thought is nice.</p>
+<p>The “Listener” response has a significantly higher mean than all the other responses.</p>
+<div id="cell-33" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 7</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to be a higher age with the Listener answer, but not many datapoints</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q7"</span>,questions,df[<span class="st">"Age"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
+Comparison  Statistic  p-value  Lower CI  Upper CI
+ (0 - 1)     -2.019     0.921   -10.485     6.446
+ (0 - 2)    -27.769     0.000   -43.134   -12.405
+ (0 - 3)      5.897     0.740    -9.467    21.262
+ (1 - 0)      2.019     0.921    -6.446    10.485
+ (1 - 2)    -25.750     0.001   -42.303    -9.197
+ (1 - 3)      7.917     0.587    -8.636    24.470
+ (2 - 0)     27.769     0.000    12.405    43.134
+ (2 - 1)     25.750     0.001     9.197    42.303
+ (2 - 3)     33.667     0.000    12.729    54.605
+ (3 - 0)     -5.897     0.740   -21.262     9.467
+ (3 - 1)     -7.917     0.587   -24.470     8.636
+ (3 - 2)    -33.667     0.000   -54.605   -12.729
+
+Counts of each Response
+Q7
+Thought               45
+I don't know          14
+Listener               4
+Thinker of Thought     4
+Name: count, dtype: int64
+
+Group Means
+Thought : 25.564102564102566
+
+I don't know : 27.583333333333332
+
+Listener : 53.333333333333336
+
+Thinker of Thought : 19.666666666666668
+</code></pre>
+</div>
+</div>
+<h4 class="anchored">
+Question 10
+</h4>
+<p>Question text: The cat is big.</p>
+<p>The “Cat Owner” response was not included in the tukey test since there was only one such response. The “Listener” response has a significantly higher mean than all the other responses (excluding cat owner).</p>
+<div id="cell-35" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 10</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Listener and Cat owner responses but not many responses</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q10"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SKIPPING A VALUE DUE TO LACK OF DATA (ONLY 1 POINT AVAILABLE)
+Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
+Comparison  Statistic  p-value  Lower CI  Upper CI
+ (0 - 1)     -8.710     0.192   -20.630     3.210
+ (0 - 2)    -30.460     0.000   -47.002   -13.918
+ (1 - 0)      8.710     0.192    -3.210    20.630
+ (1 - 2)    -21.750     0.029   -41.617    -1.883
+ (2 - 0)     30.460     0.000    13.918    47.002
+ (2 - 1)     21.750     0.029     1.883    41.617
+
+Counts of each Response
+Q10
+Cat             56
+I don't know     7
+Listener         3
+Cat owner        1
+Name: count, dtype: int64
+
+Group Means
+Cat : 25.04
+
+I don't know : 33.75
+
+Listener : 55.5
+
+Cat owner : 49.0
+</code></pre>
+</div>
+</div>
+<h4 class="anchored">
+Question 16
+</h4>
+<p>Question text: Mother’s murderer was cruel.</p>
+<p>The “Mother” response has a significantly higher mean than the “Murderer” and “Other” responses.</p>
+<div id="cell-37" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 16</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Mother but not many responses</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tukey shows difference between (Mother and Murderer) and (Mother and Listener)</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># participants who picked "Mother" older than those who picked "Murderer" or "Listener"</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q16"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
+Comparison  Statistic  p-value  Lower CI  Upper CI
+ (0 - 1)    -18.662     0.003   -32.253    -5.071
+ (0 - 2)      5.338     0.801    -8.253    18.929
+ (0 - 3)     -6.262     0.840   -23.430    10.906
+ (0 - 4)      2.738     0.996   -18.054    23.530
+ (1 - 0)     18.662     0.003     5.071    32.253
+ (1 - 2)     24.000     0.004     5.831    42.169
+ (1 - 3)     12.400     0.461    -8.580    33.380
+ (1 - 4)     21.400     0.103    -2.636    45.436
+ (2 - 0)     -5.338     0.801   -18.929     8.253
+ (2 - 1)    -24.000     0.004   -42.169    -5.831
+ (2 - 3)    -11.600     0.528   -32.580     9.380
+ (2 - 4)     -2.600     0.998   -26.636    21.436
+ (3 - 0)      6.262     0.840   -10.906    23.430
+ (3 - 1)    -12.400     0.461   -33.380     8.580
+ (3 - 2)     11.600     0.528    -9.380    32.580
+ (3 - 4)      9.000     0.867   -17.225    35.225
+ (4 - 0)     -2.738     0.996   -23.530    18.054
+ (4 - 1)    -21.400     0.103   -45.436     2.636
+ (4 - 2)      2.600     0.998   -21.436    26.636
+ (4 - 3)     -9.000     0.867   -35.225    17.225
+
+Counts of each Response
+Q16
+Murderer        49
+Mother           5
+Listener         5
+Other            4
+I don't know     4
+Name: count, dtype: int64
+
+Group Means
+Murderer : 25.738095238095237
+
+Mother : 44.4
+
+Other : 23.0
+
+Listener : 20.4
+
+I don't know : 32.0
+</code></pre>
+</div>
+</div>
+<h3 class="anchored">
+Response Correlation Analysis
+</h3>
+<p>Now we will look at each column and see if the response in one column is correlated with the response in another column.</p>
+<div id="cell-39" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run the cell in order to look at all significant effects of a response on another question's responses</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">'''for q1 in qcols:</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co">    for q2 in qcols:</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co">        if q1==q2:</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">            break</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">        p_vals, percents = compareCols(questions[q1],questions[q2])</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">        for p in range(1,len(p_vals)):</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co">            if p_vals[p]&lt;0.05:</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">                print("</span><span class="ch">\n</span><span class="co">--------------------")</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">                print("First Column: "+q1)</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Second Column: "+q2)</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co">                print("First Column answer: "+questions[q1].unique()[p])</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">                print("p-val: "+str(p_vals[p]))</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Second Column Responses: "+str(questions[q2].unique()))</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Overall percents: "+ str(percents[0]))</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Percents with Specific Col 1 Reponse: "+ str(percents[p+1]))'''</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>'for q1 in qcols:\n    for q2 in qcols:\n        if q1==q2:\n            break\n        p_vals, percents = compareCols(questions[q1],questions[q2])\n        for p in range(1,len(p_vals)):\n            if p_vals[p]&lt;0.05:\n                print("\n--------------------")\n                print("First Column: "+q1)\n                print("Second Column: "+q2)\n                print("First Column answer: "+questions[q1].unique()[p])\n                print("p-val: "+str(p_vals[p]))\n                print("Second Column Responses: "+str(questions[q2].unique()))\n                print("Overall percents: "+ str(percents[0]))\n                print("Percents with Specific Col 1 Reponse: "+ str(percents[p+1]))'</code></pre>
+</div>
+</div>
+<p>After going through all the responses that significantly impacted other questions’ responses, there were two patterns that stood out. First, for many questions, people who put “I don’t know” or “Other” were more likely to put “I don’t know” on other questions. The second pattern was that people who put “Listener” in certain questions (4,7,10) were more likely to also put “Listener” in other questions (2,4,2 respectively). Other than these, there were few significant correlations found.</p>
 
 </main>
 <!-- /main column -->
