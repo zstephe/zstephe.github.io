@@ -1322,7 +1322,7 @@ Importance of each Question in Explaining Variance
 </div>
 </div>
 </div>
-<p>To make sense of the above data, we look at the sum and mean for each column. Then we do statistical tests on it, and the p-val is very much not significant.</p>
+<p>To make sense of the above data, we look at the sum and mean for each column. We then compare each column to each other to see if any column overall has a greater impact on the data. The anova test reveals no significant differences between columns in overall divisions, but did reveal a significant difference when only looking at the most valid division numbers (2-6). A tukey test output reveals that Question 11 was only significantly different mean. <b>Question 11 had a larger impact on the component analysis than any of the other questions.</b></p>
 <div id="cell-27" class="cell" data-execution_count="54">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>totalImportance <span class="op">=</span> pd.DataFrame()</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>totalImportance[<span class="st">'Sum'</span>]<span class="op">=</span>componentImportance.<span class="bu">sum</span>()</span>
@@ -1435,13 +1435,132 @@ Importance of each Question in Explaining Variance
 </div>
 </div>
 </div>
-<div id="cell-28" class="cell" data-execution_count="58">
+<div id="cell-28" class="cell" data-execution_count="66">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> []</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> componentImportance.columns:</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    l.append(<span class="bu">list</span>(componentImportance[col]))</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>f_oneway(<span class="op">*</span>l)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="58">
-<pre><code>F_onewayResult(statistic=0.1390352384535262, pvalue=0.9999747570798088)</code></pre>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_oneway(<span class="op">*</span>l))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> []</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> componentImportance.columns:</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    l.append(<span class="bu">list</span>(componentImportance[col].iloc[<span class="dv">2</span>:<span class="dv">7</span>]))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(f_oneway(<span class="op">*</span>l))</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co">#print(tukey_hsd(*l))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>F_onewayResult(statistic=0.1390352384535262, pvalue=0.9999747570798088)
+F_onewayResult(statistic=3.4634386265250043, pvalue=0.00017064403830704882)</code></pre>
+</div>
+</div>
+<div id="cell-29" class="cell" data-execution_count="64">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>totalImportance <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>totalImportance[<span class="st">'Sum'</span>]<span class="op">=</span>componentImportance.iloc[<span class="dv">2</span>:<span class="dv">7</span>].<span class="bu">sum</span>()</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>totalImportance[<span class="st">'Mean'</span>]<span class="op">=</span>componentImportance.iloc[<span class="dv">2</span>:<span class="dv">7</span>].mean()</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">'''for col in totalImportance.columns:</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co">    info = [componentImportance.sum().iloc[0],componentImportance.mean().iloc[0]]</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">    totalImportance[col]=info'''</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>totalImportance</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="64">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Sum</th>
+<th data-quarto-table-cell-role="th">Mean</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q1</td>
+<td>0.480098</td>
+<td>0.096020</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q2</td>
+<td>0.810211</td>
+<td>0.162042</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q3</td>
+<td>0.249347</td>
+<td>0.049869</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q4</td>
+<td>0.686334</td>
+<td>0.137267</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q5</td>
+<td>0.402645</td>
+<td>0.080529</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q6</td>
+<td>0.468900</td>
+<td>0.093780</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q7</td>
+<td>1.119115</td>
+<td>0.223823</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q8</td>
+<td>0.365887</td>
+<td>0.073177</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q9</td>
+<td>0.186473</td>
+<td>0.037295</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q10</td>
+<td>0.517084</td>
+<td>0.103417</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q11</td>
+<td>2.120034</td>
+<td>0.424007</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q12</td>
+<td>1.380221</td>
+<td>0.276044</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q13</td>
+<td>1.394037</td>
+<td>0.278807</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q14</td>
+<td>1.638520</td>
+<td>0.327704</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q15</td>
+<td>1.704368</td>
+<td>0.340874</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Q16</td>
+<td>0.782233</td>
+<td>0.156447</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Q17</td>
+<td>0.262700</td>
+<td>0.052540</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 </div>
 </div>
 <h2 class="anchored">
@@ -1452,16 +1571,16 @@ Column by Column Analysis
 Age Analysis
 </h3>
 <p>To look at correlation between ages and responses to each specific question, we do anova tests to look for differences in all the questions and identify those with significant differences.</p>
-<div id="cell-30" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add age col to dataframe</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Age"</span>]<span class="op">=</span>data[<span class="st">"Age"</span>]</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># does the pVal test for every question and prints the ones with significant p-vals</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> qcols:</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> pValTest(df,q)[<span class="dv">1</span>]</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> val<span class="op">&lt;</span><span class="fl">0.05</span>:</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(q)</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(val)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-31" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># add age col to dataframe</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Age"</span>]<span class="op">=</span>data[<span class="st">"Age"</span>]</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># does the pVal test for every question and prints the ones with significant p-vals</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> q <span class="kw">in</span> qcols:</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    val <span class="op">=</span> pValTest(df,q)[<span class="dv">1</span>]</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> val<span class="op">&lt;</span><span class="fl">0.05</span>:</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(q)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(val)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Q7
 0.00012868932909781148
@@ -1481,10 +1600,10 @@ Question 7
 </h4>
 <p>Question text: This thought is nice.</p>
 <p>The “Listener” response has a significantly higher mean than all the other responses.</p>
-<div id="cell-33" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 7</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to be a higher age with the Listener answer, but not many datapoints</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q7"</span>,questions,df[<span class="st">"Age"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-34" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 7</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to be a higher age with the Listener answer, but not many datapoints</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q7"</span>,questions,df[<span class="st">"Age"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
 Comparison  Statistic  p-value  Lower CI  Upper CI
@@ -1525,10 +1644,10 @@ Question 10
 </h4>
 <p>Question text: The cat is big.</p>
 <p>The “Cat Owner” response was not included in the tukey test since there was only one such response. The “Listener” response has a significantly higher mean than all the other responses (excluding cat owner).</p>
-<div id="cell-35" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 10</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Listener and Cat owner responses but not many responses</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q10"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-36" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 10</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Listener and Cat owner responses but not many responses</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q10"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>SKIPPING A VALUE DUE TO LACK OF DATA (ONLY 1 POINT AVAILABLE)
 Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
@@ -1564,13 +1683,13 @@ Question 16
 </h4>
 <p>Question text: Mother’s murderer was cruel.</p>
 <p>The “Mother” response has a significantly higher mean than the “Murderer” and “Other” responses.</p>
-<div id="cell-37" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 16</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Mother but not many responses</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tukey shows difference between (Mother and Murderer) and (Mother and Listener)</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># participants who picked "Mother" older than those who picked "Murderer" or "Listener"</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q16"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-38" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># looking at Question 16</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># appears to have a higher age with Mother but not many responses</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># tukey shows difference between (Mother and Murderer) and (Mother and Listener)</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># participants who picked "Mother" older than those who picked "Murderer" or "Listener"</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>examineQuestion(<span class="st">"Q16"</span>,questions,df[<span class="st">'Age'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Tukey's HSD Pairwise Group Comparisons (95.0% Confidence Interval)
 Comparison  Statistic  p-value  Lower CI  Upper CI
@@ -1621,23 +1740,23 @@ I don't know : 32.0
 Response Correlation Analysis
 </h3>
 <p>Now we will look at each column and see if the response in one column is correlated with the response in another column.</p>
-<div id="cell-39" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run the cell in order to look at all significant effects of a response on another question's responses</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">'''for q1 in qcols:</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co">    for q2 in qcols:</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co">        if q1==q2:</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">            break</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">        p_vals, percents = compareCols(questions[q1],questions[q2])</span></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">        for p in range(1,len(p_vals)):</span></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co">            if p_vals[p]&lt;0.05:</span></span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">                print("</span><span class="ch">\n</span><span class="co">--------------------")</span></span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">                print("First Column: "+q1)</span></span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Second Column: "+q2)</span></span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co">                print("First Column answer: "+questions[q1].unique()[p])</span></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">                print("p-val: "+str(p_vals[p]))</span></span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Second Column Responses: "+str(questions[q2].unique()))</span></span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Overall percents: "+ str(percents[0]))</span></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Percents with Specific Col 1 Reponse: "+ str(percents[p+1]))'''</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-40" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># run the cell in order to look at all significant effects of a response on another question's responses</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co">'''for q1 in qcols:</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co">    for q2 in qcols:</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co">        if q1==q2:</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co">            break</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co">        p_vals, percents = compareCols(questions[q1],questions[q2])</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">        for p in range(1,len(p_vals)):</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co">            if p_vals[p]&lt;0.05:</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">                print("</span><span class="ch">\n</span><span class="co">--------------------")</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">                print("First Column: "+q1)</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Second Column: "+q2)</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="co">                print("First Column answer: "+questions[q1].unique()[p])</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a><span class="co">                print("p-val: "+str(p_vals[p]))</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Second Column Responses: "+str(questions[q2].unique()))</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Overall percents: "+ str(percents[0]))</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="co">                print("Percents with Specific Col 1 Reponse: "+ str(percents[p+1]))'''</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="22">
 <pre><code>'for q1 in qcols:\n    for q2 in qcols:\n        if q1==q2:\n            break\n        p_vals, percents = compareCols(questions[q1],questions[q2])\n        for p in range(1,len(p_vals)):\n            if p_vals[p]&lt;0.05:\n                print("\n--------------------")\n                print("First Column: "+q1)\n                print("Second Column: "+q2)\n                print("First Column answer: "+questions[q1].unique()[p])\n                print("p-val: "+str(p_vals[p]))\n                print("Second Column Responses: "+str(questions[q2].unique()))\n                print("Overall percents: "+ str(percents[0]))\n                print("Percents with Specific Col 1 Reponse: "+ str(percents[p+1]))'</code></pre>
 </div>
