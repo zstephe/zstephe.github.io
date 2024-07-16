@@ -28,13 +28,13 @@
 }
 
 .topnav {
-    background-color: #333;
+    background-color: #1d0632;
     overflow: hidden
 }
 
 .topnav a {
     float: left;
-    color: #1d0632;
+    color: #ddd;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
