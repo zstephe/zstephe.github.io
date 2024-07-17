@@ -146,6 +146,6 @@ def examineQuestion(q,df,ageCol):
     print("Group Means")
     df['Age']=ageCol
     for val in vals:
-        print(val+" : ",end='')
+        print(str(val)+" : ",end='')
         print(df[df[q]==val]['Age'].mean())
         print()
