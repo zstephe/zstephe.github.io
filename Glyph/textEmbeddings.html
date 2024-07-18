@@ -49,12 +49,14 @@ pre.numberSource code > span > a:first-child::before
     padding: 0 4px; width: 4em;
   }
 pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
-<link rel="stylesheet" href="../html_files/style.css">
+
 <script src="textEmbeddings_files/libs/clipboard/clipboard.min.js"></script>
 <script src="textEmbeddings_files/libs/quarto-html/quarto.js"></script>
 <script src="textEmbeddings_files/libs/quarto-html/popper.min.js"></script>
@@ -65,22 +67,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="textEmbeddings_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="textEmbeddings_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="textEmbeddings_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 
 
 </head>
 
 <body class="fullcontent">
 
-  <div class="topnav">
-    <ul style="padding: 0;">
-      <li style="display: inline-block;"><a href="../index.html">Home</a>  </li>
-      <li style="display: inline-block;"><a href="#">Text Embeddings</a>  </li>
-      <li style="display: inline-block;"><a href="../html_files/imageEmbeddings.html">Image Embeddings</a>  </li>
-      <li style="display: inline-block;"><a href="#">About Me</a></li>
-    </ul>
-  </div>
-  
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 
 <main class="content" id="quarto-document-content">
@@ -92,7 +84,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 Rule Clusters Based on Text Embeddings
 </h1>
 <p>The data that was taken from Glyph includes all of the rule descriptions that the users input. In order to analyze these rule descriptions I used text embeddings to generate vectorized versions of the data, and then clustered them using kmeans. This would give me an idea of the patterns in the rules and what kinds of rules could be applied to many different scripts.</p>
-<div id="cell-1" class="cell" data-execution_count="11">
+<div id="cell-1" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># importing necessary functions</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functions <span class="im">import</span> <span class="op">*</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -102,6 +94,10 @@ Rule Clusters Based on Text Embeddings
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading data files</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> pd.read_csv(<span class="st">"csv_files/embeddings.csv"</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>embeddings2d <span class="op">=</span> pd.read_csv(<span class="st">"csv_files/embeddings2D.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/Users/zoestephens/Desktop/summer2024/.venv/lib/python3.12/site-packages/sentence_transformers/cross_encoder/CrossEncoder.py:11: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
+  from tqdm.autonotebook import tqdm, trange</code></pre>
+</div>
 </div>
 <h2 class="anchored">
 Cluster Formation and Visualization
@@ -109,20 +105,20 @@ Cluster Formation and Visualization
 <p>Visualization of rule clusters was made by collapsing the embeddings into 2D and then graphing them based on the cluster nums chosen. The collapsing process has been explored through a variety of methods—T-SNE, PCA, and UMAP—and parameters were changed to get best clustering results. The best method found was first reducing dimensionality using PCA to 80% explained variance (to reduce the noise in the data), clustering using Kmeans, then reducing again down to 2 dimensions using PCA.</p>
 <p>Below you see the original PCA dimension reducing, which found that 55 dimensions explained 80% of variance in the rules.</p>
 <div id="cell-3" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># removing the labels from the embeddings and initializing the pca model</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plainEmbeddings <span class="op">=</span> embeddings.drop(<span class="st">"Description"</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> pca.explained_variance_ratio_</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the explained variance of each number of components</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># saves the plot to html_files</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">769</span>),pca.explained_variance_ratio_.cumsum(),marker<span class="op">=</span><span class="st">'o'</span>,linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"PCA component cumulative explained variance ratio"</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"# of components"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative explained variance"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../html_files/explainedVariance.png"</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># removing the labels from the embeddings and initializing the pca model</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>plainEmbeddings <span class="op">=</span> embeddings.drop(<span class="st">"Description"</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> pca.explained_variance_ratio_</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the explained variance of each number of components</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># saves the plot to html_files</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">769</span>),pca.explained_variance_ratio_.cumsum(),marker<span class="op">=</span><span class="st">'o'</span>,linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"PCA component cumulative explained variance ratio"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"# of components"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative explained variance"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../html_files/explainedVariance.png"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -133,24 +129,24 @@ Cluster Formation and Visualization
 </div>
 <p>After performing PCA, the next step was to find an appropriate number of clusters. To do this, we graphed the inertias of kmeans clustering from 5 to 25 clusters. There was no clear elbow in the inertias graph, so 15 clusters were used for further analyses (large enough number to divide the rules into clear categories but not too many to parse by hand).</p>
 <div id="cell-5" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 80% at 55 components</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 55 features</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pca<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">55</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>scores_pca <span class="op">=</span> pca.transform(plainEmbeddings)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>scores_pca_df <span class="op">=</span> pd.DataFrame(scores_pca)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>scores_pca_df[<span class="st">"Description"</span>] <span class="op">=</span> <span class="bu">range</span>(<span class="dv">69027</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># creates a dataframe to hold all of the cluster information for cluster nums between 5 and 25</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Description"</span>]<span class="op">=</span>embeddings[<span class="st">"Description"</span>]</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>,<span class="dv">25</span>):</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    kmeans_pca <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>i,init<span class="op">=</span><span class="st">'k-means++'</span>,random_state<span class="op">=</span>randomSeed)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> kmeans_pca.fit(scores_pca)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"Kmeans "</span><span class="op">+</span><span class="bu">str</span>(i)] <span class="op">=</span> kmeans.labels_</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># does kmeans for clusters 1-25 and shows+saves inertias</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> doKmeans(scores_pca_df,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">25</span>),saveInertias<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 80% at 55 components</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 55 features</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pca<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">55</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>scores_pca <span class="op">=</span> pca.transform(plainEmbeddings)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>scores_pca_df <span class="op">=</span> pd.DataFrame(scores_pca)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>scores_pca_df[<span class="st">"Description"</span>] <span class="op">=</span> <span class="bu">range</span>(<span class="dv">69027</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># creates a dataframe to hold all of the cluster information for cluster nums between 5 and 25</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Description"</span>]<span class="op">=</span>embeddings[<span class="st">"Description"</span>]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>,<span class="dv">25</span>):</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    kmeans_pca <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>i,init<span class="op">=</span><span class="st">'k-means++'</span>,random_state<span class="op">=</span>randomSeed)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> kmeans_pca.fit(scores_pca)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"Kmeans "</span><span class="op">+</span><span class="bu">str</span>(i)] <span class="op">=</span> kmeans.labels_</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># does kmeans for clusters 1-25 and shows+saves inertias</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> doKmeans(scores_pca_df,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">25</span>),saveInertias<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -161,14 +157,14 @@ Cluster Formation and Visualization
 </div>
 <p>After determining the clusters, the dimensionality was further reduced to allow 2d visualization of the clusters as seen below.</p>
 <div id="cell-7" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 2D for visualization</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pca2d<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pca2d.fit(plainEmbeddings)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>scores_pca2d <span class="op">=</span> pca2d.transform(plainEmbeddings)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>newEmbeddings2D<span class="op">=</span>pd.DataFrame(scores_pca2d)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 2D for visualization</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pca2d<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>pca2d.fit(plainEmbeddings)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>scores_pca2d <span class="op">=</span> pca2d.transform(plainEmbeddings)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>newEmbeddings2D<span class="op">=</span>pd.DataFrame(scores_pca2d)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -181,16 +177,292 @@ Cluster Formation and Visualization
 Examining Clusters
 </h2>
 <p>To further remove noise from the graph, the clusters were gone through manually using printClusterSet. We can then use this to identify clusters that appear to be mostly random and remove them from our visualization (as in the following graph). In the set of 15 clusters, the ones deemed to not have strong patterns were removed (clusters 0, 5, 8, 9, and 10).</p>
-<div id="cell-9" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># retrieve specific cluster data from a cluster number</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#printClusterSet(df,15)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-9" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># retrieve specific cluster data from a cluster number</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>printClusterSet(df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+
+Printing 15 cluster set:
+
+Cluster 0
+                                  Description  Kmeans 15
+37                                  two holes          0
+42                                    triples          0
+47                                    b and h          0
+48                                    m and a          0
+55                           voyelles + z - u          0
+...                                       ...        ...
+68925               gleichschenklige dreiecke          0
+68940         3 independent points of contact          0
+68941  3 points of contact with intersections          0
+69011                               has a dot          0
+69018             avec un ou plusieurs points          0
+
+[6482 rows x 2 columns]
+
+
+
+Cluster 1
+                                             Description  Kmeans 15
+12                                  angles &lt; 90 degrees           1
+21                              protrusions on the right          1
+22                                protusions on the left          1
+35                                        ángulos rectos          1
+50                                            left angle          1
+...                                                  ...        ...
+68883  alle zeichen haben entweder eine ausbuchtung n...          1
+68950           3 sides of a square, but missing 4th leg          1
+68958                                a flag on top right          1
+68961                     a half line on the bottom left          1
+68964                              square on bottom left          1
+
+[5564 rows x 2 columns]
+
+
+
+Cluster 2
+                                          Description  Kmeans 15
+10                       can be written in one stroke          2
+127                   single stroke, no doubling back          2
+210    have exactly two strokes facing straight down           2
+224                                single open stroke          2
+237                         single stroke, dont close          2
+...                                               ...        ...
+68432                                      one stroke          2
+68473                                   only one dot.          2
+68895                                         strokes          2
+68896                                   cross strokes          2
+68915             only one stroke but no closed loops          2
+
+[1148 rows x 2 columns]
+
+
+
+Cluster 3
+                                             Description  Kmeans 15
+1                                          a full circle          3
+3                                    triangle and circle          3
+4                                         triangle and e          3
+9                                   contains round parts          3
+14                                           full circle          3
+...                                                  ...        ...
+68960                       a parallel rectangle on left          3
+68990                  two dots spanning the main shape.          3
+68998  the center shape is connected to the top triangle          3
+69008                                 vertical triangles          3
+69025                            look like common shapes          3
+
+[4379 rows x 2 columns]
+
+
+
+Cluster 4
+                            Description  Kmeans 15
+102             lines above the horizon          4
+186                      crossing lines          4
+267              contains crossed lines          4
+334    even number crossing middle line          4
+338                     completed cross          4
+...                                 ...        ...
+68433                     crossed lines          4
+68460               lines cross through          4
+68731                     crossed lines          4
+68822        disconnected lines or dots          4
+68834                lines not crossing          4
+
+[1225 rows x 2 columns]
+
+
+
+Cluster 5
+                                             Description  Kmeans 15
+27         dreieck-struktur / winkel kleiner als 90 grad          5
+33                die linie beugt sich und wird parallel          5
+38                      trazos verticales u horizontales          5
+44                                         perpendicular          5
+51                                          downward dot          5
+...                                                  ...        ...
+68936  only 1 contact to right edge vertical bar. it ...          5
+68938                       at least 2 vertical segments          5
+68986                   three distinct vertical sections          5
+69014                                   a des diagonales          5
+69016        avec des angles qui ne sont pas à 90 degrés          5
+
+[7056 rows x 2 columns]
+
+
+
+Cluster 6
+                              Description  Kmeans 15
+8                        one closed space          6
+18       an enlosed area open at the base          6
+20                totally enclosed shapes          6
+24                      an enclosed space          6
+61             completely enclosed shapes          6
+...                                   ...        ...
+68949  actual enclosed space with 3 sides          6
+68987                      encloses space          6
+68997          all form an enclosed space          6
+69003              has one enclosed space          6
+69006          creates one enclosed space          6
+
+[3216 rows x 2 columns]
+
+
+
+Cluster 7
+                                             Description  Kmeans 15
+11                                  perpendicular lines           7
+13                                three horizontal lines          7
+17                            a horizontal straight line          7
+40                                     has diagonal line          7
+41                                       horizontal line          7
+...                                                  ...        ...
+68989                               close parallel lines          7
+68993                                perpendicular lines          7
+68996                            pairs of parallel lines          7
+69000                     three horizontal line segments          7
+69005  has a horizontal line intersecting a vertical ...          7
+
+[3971 rows x 2 columns]
+
+
+
+Cluster 8
+                                Description  Kmeans 15
+0                                       ben          8
+2                                       gos          8
+5                                        zh          8
+6                          alpha beta gamma          8
+7                                 alpha psy          8
+...                                     ...        ...
+69019                         un seul trait          8
+69020                   en forme de crochet          8
+69021  fermée, mais qui nest pas une boucle          8
+69023                               boucles          8
+69024          avec une barre sur le dessus          8
+
+[14601 rows x 2 columns]
+
+
+
+Cluster 9
+                                             Description  Kmeans 15
+25                  exactly two (non-intersecting) lines          9
+60                                       diagnonal lines          9
+109                  single line with at least one angle          9
+116                                  only straight lines          9
+117                                    only curved lines          9
+...                                                  ...        ...
+68984     not topologically equivalent to one plain line          9
+68985         topologically equivalent to one plain line          9
+68999  characters comprised only of straight (non-cur...          9
+69002                       contains 3 unconnected lines          9
+69004                       contains 2 unconnected lines          9
+
+[2678 rows x 2 columns]
+
+
+
+Cluster 10
+                                             Description  Kmeans 15
+23     characters likely drawn in a single motion wit...         10
+45                                     vowels/diphthongs         10
+56                                             consonnes         10
+119                                           inverted u         10
+122                    rotate to create a similar letter         10
+...                                                  ...        ...
+68931                                    latin and greek         10
+68969  tous les caractères comportant au moins une li...         10
+68970  tous les caractères composés de deux droites, ...         10
+68991                                   dotted variants.         10
+68992                             character(s) with dots         10
+
+[11022 rows x 2 columns]
+
+
+
+Cluster 11
+                                             Description  Kmeans 15
+497                       180-degree rotational symmetry         11
+2240                          axe de symétrie horizontal         11
+2506                                   symetrie rotative         11
+2826   le graphe possède un axe ou un point de symétrie.         11
+4300               le graphe possède un axe de symétrie.         11
+...                                                  ...        ...
+68355                                   axis of symmetry         11
+68374                                   axis of symmetry         11
+68393                                   axis of symmetry         11
+68422                                   axis of symmetry         11
+68428                                   axis of symmetry         11
+
+[832 rows x 2 columns]
+
+
+
+Cluster 12
+                                             Description  Kmeans 15
+52                                        two components         12
+128                           three unconnected elements         12
+129                             two unconnected elements         12
+206                                              2 piece         12
+385                  two separate components line or dot         12
+...                                                  ...        ...
+68415                                    separated parts         12
+68429                                    separated parts         12
+68553  all parts are connected, no part is off by itself         12
+68635                                         two pieces         12
+68942                    number of independent parts = 5         12
+
+[983 rows x 2 columns]
+
+
+
+Cluster 13
+                          Description  Kmeans 15
+66                        has curves          13
+72                    includes curves         13
+96                  single open curve         13
+106                         no curves         13
+107    curve greater than 180 degrees         13
+...                               ...        ...
+69001                 contain a curve         13
+69007                          curved         13
+69010               has a curved line         13
+69015                         courbes         13
+69026  made of both lines and curves.         13
+
+[3131 rows x 2 columns]
+
+
+
+Cluster 14
+                             Description  Kmeans 15
+32                horizontal symmetrisch         14
+57       first 11 left-to-right symmetry         14
+108        symmetrical about the horizon         14
+167                 horizontal symmetry          14
+169                  horizontal symmetry         14
+...                                  ...        ...
+68611             left to right symmetry         14
+68916            symmetrical in some way         14
+69009  has a horizontal line of symmetry         14
+69012    has a vertical line of symmetry         14
+69022         symétrique sur un des axes         14
+
+[2739 rows x 2 columns]
+
+
+</code></pre>
 </div>
-<div id="cell-10" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters after removing the random clusters</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"random"</span>,<span class="st">"right/left"</span>,<span class="st">"single stroke"</span>,<span class="st">"shapes (circles + triangles)"</span>,<span class="st">"crossing lines"</span>,<span class="st">"random"</span>,<span class="st">"closed space"</span>,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"parallel/perpendicular/horizontal lines"</span>,<span class="st">"random"</span>,<span class="st">"'lines"</span>,<span class="st">"random"</span>,<span class="st">"axis of symmetry"</span>,<span class="st">"unconnected elements"</span>,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"curves"</span>,<span class="st">"horizontal symmetry"</span>]</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>,ignore<span class="op">=</span>[<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>],savefig<span class="op">=</span><span class="va">True</span>,labels<span class="op">=</span>labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-10" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters after removing the random clusters</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"random"</span>,<span class="st">"right/left"</span>,<span class="st">"single stroke"</span>,<span class="st">"shapes (circles + triangles)"</span>,<span class="st">"crossing lines"</span>,<span class="st">"random"</span>,<span class="st">"closed space"</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"parallel/perpendicular/horizontal lines"</span>,<span class="st">"random"</span>,<span class="st">"'lines"</span>,<span class="st">"random"</span>,<span class="st">"axis of symmetry"</span>,<span class="st">"unconnected elements"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"curves"</span>,<span class="st">"horizontal symmetry"</span>]</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>,ignore<span class="op">=</span>[<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>],savefig<span class="op">=</span><span class="va">True</span>,labels<span class="op">=</span>labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
