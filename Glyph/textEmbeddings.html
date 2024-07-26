@@ -57,7 +57,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="textEmbeddings_files/libs/clipboard/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="textEmbeddings_files/libs/clipboard/clipboard.min.js"></script>
 <script src="textEmbeddings_files/libs/quarto-html/quarto.js"></script>
 <script src="textEmbeddings_files/libs/quarto-html/popper.min.js"></script>
 <script src="textEmbeddings_files/libs/quarto-html/tippy.umd.min.js"></script>
@@ -67,6 +67,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="textEmbeddings_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="textEmbeddings_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="textEmbeddings_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 </head>
@@ -84,7 +87,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 Rule Clusters Based on Text Embeddings
 </h1>
 <p>The data that was taken from Glyph includes all of the rule descriptions that the users input. In order to analyze these rule descriptions I used text embeddings to generate vectorized versions of the data, and then clustered them using kmeans. This would give me an idea of the patterns in the rules and what kinds of rules could be applied to many different scripts.</p>
-<div id="cell-1" class="cell" data-execution_count="2">
+<div id="cell-1" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># importing necessary functions</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functions <span class="im">import</span> <span class="op">*</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -94,31 +97,27 @@ Rule Clusters Based on Text Embeddings
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading data files</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> pd.read_csv(<span class="st">"csv_files/embeddings.csv"</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>embeddings2d <span class="op">=</span> pd.read_csv(<span class="st">"csv_files/embeddings2D.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/Users/zoestephens/Desktop/summer2024/.venv/lib/python3.12/site-packages/sentence_transformers/cross_encoder/CrossEncoder.py:11: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
-  from tqdm.autonotebook import tqdm, trange</code></pre>
-</div>
 </div>
 <h2 class="anchored">
 Cluster Formation and Visualization
 </h2>
 <p>Visualization of rule clusters was made by collapsing the embeddings into 2D and then graphing them based on the cluster nums chosen. The collapsing process has been explored through a variety of methods—T-SNE, PCA, and UMAP—and parameters were changed to get best clustering results. The best method found was first reducing dimensionality using PCA to 80% explained variance (to reduce the noise in the data), clustering using Kmeans, then reducing again down to 2 dimensions using PCA.</p>
 <p>Below you see the original PCA dimension reducing, which found that 55 dimensions explained 80% of variance in the rules.</p>
-<div id="cell-3" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># removing the labels from the embeddings and initializing the pca model</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>plainEmbeddings <span class="op">=</span> embeddings.drop(<span class="st">"Description"</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA()</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> pca.explained_variance_ratio_</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the explained variance of each number of components</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># saves the plot to html_files</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">769</span>),pca.explained_variance_ratio_.cumsum(),marker<span class="op">=</span><span class="st">'o'</span>,linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"PCA component cumulative explained variance ratio"</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"# of components"</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative explained variance"</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../html_files/explainedVariance.png"</span>)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-3" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># removing the labels from the embeddings and initializing the pca model</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>plainEmbeddings <span class="op">=</span> embeddings.drop(<span class="st">"Description"</span>,axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>pca <span class="op">=</span> PCA()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> pca.explained_variance_ratio_</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting the explained variance of each number of components</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># saves the plot to html_files</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>plt.plot(<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">769</span>),pca.explained_variance_ratio_.cumsum(),marker<span class="op">=</span><span class="st">'o'</span>,linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"PCA component cumulative explained variance ratio"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"# of components"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cumulative explained variance"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../html_files/explainedVariance.png"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -128,25 +127,25 @@ Cluster Formation and Visualization
 </div>
 </div>
 <p>After performing PCA, the next step was to find an appropriate number of clusters. To do this, we graphed the inertias of kmeans clustering from 5 to 25 clusters. There was no clear elbow in the inertias graph, so 15 clusters were used for further analyses (large enough number to divide the rules into clear categories but not too many to parse by hand).</p>
-<div id="cell-5" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 80% at 55 components</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 55 features</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pca<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">55</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>scores_pca <span class="op">=</span> pca.transform(plainEmbeddings)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>scores_pca_df <span class="op">=</span> pd.DataFrame(scores_pca)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>scores_pca_df[<span class="st">"Description"</span>] <span class="op">=</span> <span class="bu">range</span>(<span class="dv">69027</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># creates a dataframe to hold all of the cluster information for cluster nums between 5 and 25</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Description"</span>]<span class="op">=</span>embeddings[<span class="st">"Description"</span>]</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>,<span class="dv">25</span>):</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    kmeans_pca <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>i,init<span class="op">=</span><span class="st">'k-means++'</span>,random_state<span class="op">=</span>randomSeed)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> kmeans_pca.fit(scores_pca)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"Kmeans "</span><span class="op">+</span><span class="bu">str</span>(i)] <span class="op">=</span> kmeans.labels_</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># does kmeans for clusters 1-25 and shows+saves inertias</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> doKmeans(scores_pca_df,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">25</span>),saveInertias<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-5" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 80% at 55 components</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 55 features</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pca<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">55</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pca.fit(plainEmbeddings)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>scores_pca <span class="op">=</span> pca.transform(plainEmbeddings)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>scores_pca_df <span class="op">=</span> pd.DataFrame(scores_pca)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>scores_pca_df[<span class="st">"Description"</span>] <span class="op">=</span> <span class="bu">range</span>(<span class="dv">69027</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># creates a dataframe to hold all of the cluster information for cluster nums between 5 and 25</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Description"</span>]<span class="op">=</span>embeddings[<span class="st">"Description"</span>]</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>,<span class="dv">25</span>):</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    kmeans_pca <span class="op">=</span> KMeans(n_clusters<span class="op">=</span>i,init<span class="op">=</span><span class="st">'k-means++'</span>,random_state<span class="op">=</span>randomSeed)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    kmeans <span class="op">=</span> kmeans_pca.fit(scores_pca)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"Kmeans "</span><span class="op">+</span><span class="bu">str</span>(i)] <span class="op">=</span> kmeans.labels_</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># does kmeans for clusters 1-25 and shows+saves inertias</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> doKmeans(scores_pca_df,<span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">25</span>),saveInertias<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -156,15 +155,15 @@ Cluster Formation and Visualization
 </div>
 </div>
 <p>After determining the clusters, the dimensionality was further reduced to allow 2d visualization of the clusters as seen below.</p>
-<div id="cell-7" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 2D for visualization</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pca2d<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>pca2d.fit(plainEmbeddings)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>scores_pca2d <span class="op">=</span> pca2d.transform(plainEmbeddings)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>newEmbeddings2D<span class="op">=</span>pd.DataFrame(scores_pca2d)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-7" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># uses PCA to collapse down to 2D for visualization</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pca2d<span class="op">=</span>PCA(n_components<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pca2d.fit(plainEmbeddings)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>scores_pca2d <span class="op">=</span> pca2d.transform(plainEmbeddings)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>newEmbeddings2D<span class="op">=</span>pd.DataFrame(scores_pca2d)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -177,9 +176,9 @@ Cluster Formation and Visualization
 Examining Clusters
 </h2>
 <p>To further remove noise from the graph, the clusters were gone through manually using printClusterSet. We can then use this to identify clusters that appear to be mostly random and remove them from our visualization (as in the following graph). In the set of 15 clusters, the ones deemed to not have strong patterns were removed (clusters 0, 5, 8, 9, and 10).</p>
-<div id="cell-9" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># retrieve specific cluster data from a cluster number</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>printClusterSet(df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-9" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># retrieve specific cluster data from a cluster number</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>printClusterSet(df,<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 
@@ -457,16 +456,102 @@ Cluster 14
 </code></pre>
 </div>
 </div>
-<div id="cell-10" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters after removing the random clusters</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"random"</span>,<span class="st">"right/left"</span>,<span class="st">"single stroke"</span>,<span class="st">"shapes (circles + triangles)"</span>,<span class="st">"crossing lines"</span>,<span class="st">"random"</span>,<span class="st">"closed space"</span>,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"parallel/perpendicular/horizontal lines"</span>,<span class="st">"random"</span>,<span class="st">"'lines"</span>,<span class="st">"random"</span>,<span class="st">"axis of symmetry"</span>,<span class="st">"unconnected elements"</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"curves"</span>,<span class="st">"horizontal symmetry"</span>]</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>,ignore<span class="op">=</span>[<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>],savefig<span class="op">=</span><span class="va">True</span>,labels<span class="op">=</span>labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-10" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">'''from matplotlib.colors import ListedColormap</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">from matplotlib import colormaps</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">'''</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>cmap <span class="op">=</span> [<span class="st">'lightsteelblue'</span>,<span class="st">'cornflowerblue'</span>,<span class="st">'royalblue'</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mediumblue'</span>,<span class="st">'darkblue'</span>,<span class="st">'slateblue'</span>,<span class="st">'darkslateblue'</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">'mediumslateblue'</span>,<span class="st">'darkviolet'</span>,<span class="st">'thistle'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>newEmbeddings2D</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="39">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">0</th>
+<th data-quarto-table-cell-role="th">1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>-1.008064</td>
+<td>0.329673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.026840</td>
+<td>-1.098236</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>-0.907846</td>
+<td>0.562070</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0.369361</td>
+<td>-1.241265</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0.271517</td>
+<td>-0.600456</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">69022</td>
+<td>0.501888</td>
+<td>-0.777355</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">69023</td>
+<td>-0.696776</td>
+<td>-0.245360</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">69024</td>
+<td>-0.545128</td>
+<td>0.044599</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">69025</td>
+<td>0.228770</td>
+<td>-0.752033</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">69026</td>
+<td>0.986733</td>
+<td>-0.235568</td>
+</tr>
+</tbody>
+</table>
+
+<p>69027 rows × 2 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># visualizes the clusters after removing the random clusters</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">"random"</span>,<span class="st">"right/left"</span>,<span class="st">"single stroke"</span>,<span class="st">"shapes (circles + triangles)"</span>,<span class="st">"crossing lines"</span>,<span class="st">"random"</span>,<span class="st">"closed space"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"parallel/perpendicular/horizontal lines"</span>,<span class="st">"random"</span>,<span class="st">"'lines"</span>,<span class="st">"random"</span>,<span class="st">"axis of symmetry"</span>,<span class="st">"unconnected elements"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>          <span class="st">"curves"</span>,<span class="st">"horizontal symmetry"</span>]</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>visualize2D(newEmbeddings2D,df,<span class="dv">15</span>,ignore<span class="op">=</span>[<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>],savefig<span class="op">=</span><span class="va">True</span>,labels<span class="op">=</span>labels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="textEmbeddings_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="textEmbeddings_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
