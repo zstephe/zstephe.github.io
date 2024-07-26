@@ -1,4 +1,3 @@
-from nltk.tokenize import word_tokenize
 import pandas as pd
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
@@ -51,21 +50,12 @@ def getPassedCol(df):
     return passed['Description']
 
 
-def getWordTokens(col):
-    tokens=[]
-    data = []
-    words = []
-    for row in col:
-        for word in word_tokenize(row):
-            tokens.append(word.lower())
-            if word not in words:
-                words.append(word)
-    data.append(tokens)
-    return data
-
-
-# takes in the column with descriptions
-# returns dataframe with embeddings and column with sentences called "Description"
+'''
+takes in the column with descriptions returns embeddings w Description col
+@param col = description column
+@param multi = whether to use a multilingual model or not (default True)
+@return embeddings dataframe
+'''
 def makeEmbeddings(col, multi=True):
     # Load a pretrained Sentence Transformer model
     if(multi):
@@ -83,7 +73,11 @@ def makeEmbeddings(col, multi=True):
     embedded_df.insert(0,"Description",sentences,True)
     return embedded_df
 
-
+'''
+Makes the embeddings 2d by first reducing to 50d using PCA then using TSNE to reduce to 2
+@param embeddings = dataframe containing embeddings
+@return 2d version of embeddings
+'''
 def make2D(embeddings):
     # reduce the dimension first before using t-SNE
     X_pca = PCA(n_components=50).fit_transform(embeddings)
