@@ -1,0 +1,120 @@
+:root {
+    --nav-color:black;
+    --nav-text-color:white;
+}
+
+html {scroll-behavior: smooth;}
+
+.class {
+    border: white 2px solid;
+    margin:15px;
+    height: 200px;
+    align-content: center;
+}
+.class:hover{
+    background-color: white;
+    color: black;
+    font-size: 0;
+}
+
+.class:hover:after{
+    content:attr(data-hover);
+    font-size: 16px;
+}
+
+ul {list-style-type: '- ';}
+li {margin:10px 0;}
+
+
+a{ color:#b6b5b5;}
+a:hover{color:#828282;}
+
+.resume-item{
+    border-right: 2px solid white; 
+    border-top:2px solid white;
+}
+
+#ComputerScience {
+scroll-margin-top: 127px;
+}
+#Biology {
+scroll-margin-top: 127px;
+}
+#Math {
+scroll-margin-top: 127px;
+}
+#CognitiveScience {
+scroll-margin-top: 127px;
+}
+
+#Education {
+scroll-margin-top: 127px;
+}
+#Experience {
+scroll-margin-top: 127px;
+}
+#Projects {
+scroll-margin-top: 127px;
+}
+#Skills {
+scroll-margin-top: 127px;
+}
+
+body{
+    font-family: "Elms Sans";
+    font-weight: 200;
+    background-color: black;
+    color:white;
+}
+
+h1{font-weight: 200;}
+
+h2{font-weight:200;}
+
+.btn-res{
+    background-color: black;
+    color:white;
+    outline: 1px solid white;
+}
+.btn-res:hover{
+    background-color: white;
+    color:black;
+    outline: 1px solid white;
+}
+
+
+.image-container{
+    position:relative;
+    display:inline-block;
+}
+
+.overlay-text{
+    position: absolute;
+    top: 7%;
+    right:5%;
+    color:white;
+    font-size: 5vw;
+    text-shadow: 3px 3px 2px #000000, 1px 1px 2px black, 0px 0px 2px black;
+    max-width: 30vw;
+    text-align: right;
+}
+
+
+.custom-navbar-color {
+    background-color: var(--nav-color) !important;
+}
+
+.elms-sans {
+  font-family: "Elms Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 100;
+  font-style: italic;
+}
+
+
+.copyright{
+    height: 40px;
+    background-color: var(--nav-color);
+    color: var(--nav-text-color);
+    align-content: center;
+}
