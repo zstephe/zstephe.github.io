@@ -5,6 +5,20 @@
 
 html {scroll-behavior: smooth;}
 
+.parallax {
+  /* The image used */
+    margin-top: 56px; 
+    width: 100%;
+  /* Set a specific height */
+    min-height: 640px;
+
+  /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 .class {
     border: white 2px solid;
     margin:15px;
