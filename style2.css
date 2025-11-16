@@ -82,6 +82,16 @@ h2{font-weight:200;}
     outline: 1px solid white;
 }
 
+.btn-sil{
+    background-color: white;
+    outline: 1px solid black;
+    filter: invert(100%);
+}
+.btn-sil:hover{
+    background-color: white;
+    outline: 1px solid white;
+    filter: invert(0%);
+}
 
 .image-container{
     position:relative;
