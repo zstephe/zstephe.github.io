@@ -3,6 +3,8 @@
     --nav-text-color:white;
 }
 
+
+
 html {scroll-behavior: smooth;}
 
 .class {
@@ -35,29 +37,29 @@ a:hover{color:#828282;}
 }
 
 #ComputerScience {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 #Biology {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 #Math {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 #CognitiveScience {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 
 #Education {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 #Experience {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 #Projects {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 #Skills {
-scroll-margin-top: 127px;
+scroll-margin-top: 76px;
 }
 
 body{
@@ -81,6 +83,19 @@ h2{font-weight:200;}
     color:black;
     outline: 1px solid white;
 }
+
+.btn-sil {
+    background-color: white;
+    outline: 1px solid black;
+    filter: invert(100%);
+}
+.btn-sil:hover{
+    background-color: white;
+    outline:1px solid white;
+    filter: invert(0%);
+}
+
+
 
 
 .image-container{
