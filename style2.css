@@ -5,18 +5,50 @@
 
 html {scroll-behavior: smooth;}
 
-.parallax {
-  /* The image used */
-    margin-top: 56px; 
+.bg-home,.bg-pub, .bg-res-edu,.bg-res-exp,.bg-res-pro,.bg-res-ski {
+  /* The image used */ 
     width: 100%;
   /* Set a specific height */
-    min-height: 640px;
-
   /* Create the parallax scrolling effect */
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    position: relative;
+}
+
+.bg-home, .bg-pub, .bg-res-edu {margin-top: 56px;}
+
+.bg-home{min-height: 640px;background-image: url('pics/p1.jpg');}
+.bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');}
+.bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');}
+.bg-res-exp{min-height: 2000px;background-image:url('pics/summer2024.jpg')}
+.bg-res-pro{min-height: 400px;}
+.bg-res-ski{min-height: 400px;}
+
+
+.text-block{
+    display:flex;
+    background-color: black;
+    color:white;
+    min-height:10vw;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.parallax-text {
+    position: absolute;
+    background-color: black;
+    color:white;
+    padding:10px;
+    background: rgba( 0, 0, 0, 0.8 );
+    backdrop-filter: blur(10px);
+    max-width: 35vw;
+}
+
+.blur{
+    filter: blur(3px);
 }
 
 .class {
@@ -86,24 +118,24 @@ h1{font-weight: 200;}
 h2{font-weight:200;}
 
 .btn-res{
-    background-color: black;
-    color:white;
-    outline: 1px solid white;
+    background-color: white;
+    color:black;
+    outline: 1px solid black;
+    filter: invert(100%);
 }
 .btn-res:hover{
     background-color: white;
     color:black;
     outline: 1px solid white;
+    filter: invert(0%);
 }
 
 .btn-sil{
     background-color: white;
-    outline: 1px solid black;
     filter: invert(100%);
 }
 .btn-sil:hover{
     background-color: white;
-    outline: 1px solid white;
     filter: invert(0%);
 }
 
