@@ -36,7 +36,7 @@
                         <a class="nav-link" href="classes.html">Classes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="resume2.html">About</a>
+                        <a class="nav-link" href="#">About</a>
                     </li>
                 </ul>
                 </div>
@@ -44,141 +44,127 @@
         </nav>
 
         
-        <nav class="nav justify-content-center">
+        <nav class="nav justify-content-center navbar fixed-bottom" style="z-index: 999;">
             <ul class="nav" style="position: fixed; bottom:0; background-color: black;">
                 <li class="px-4"><a class="btn btn-res" href="#Education">Education</a></li>
                 <li class="px-4"><a class="btn btn-res" href="#Experience">Experience</a></li>
                 <li class="px-4"><a class="btn btn-res" href="#Projects">Projects</a></li>
                 <li class="px-4"><a class="btn btn-res" href="#Skills">Skills</a></li>
+                <li class="px-4"><a class="btn btn-res" href="Resume_Z.pdf" download="">Resume <img alt="download" src="icons/download.png" style="width: 20px;"></a></li>
             </ul>
         </nav>
 
-        <div class="text-center" style="display:flex; margin-top:48px; align-items: center;justify-content: center;">
-            <div class="text-center" style="font-size: 70; display:inline-block;">Resume</div>
-            <a class="btn-sil" style="display: inline-block; margin-left:10px; margin-top:17px;" href="Resume_Z.pdf" download><img src="icons/download.png" style="width: 30px;"></a>
+        <div style="margin-bottom: 20px;">
+
+            <div class="bg-res-edu" id="Education">
+            <div class="text-center parallax-text" style="top:25%; left:15%;backdrop-filter: blur(10px);">
+            <h1>Education</h1>
+            <p>Wellesley College<br>
+                <i>Expected graduation 2027</i><br>
+                <i>Cognitive and Linguistic Sciences Major</i><br>
+                <i>Computer Science Concentration</i><br>
+                GPA: 3.94
+            </p>
+            </div>
+        </div>
+
+        <div class="text-block"><h1 id="Experience">Experience</h1></div>
+
+        <div class="bg-res-exp">
+            <div class="text-center parallax-text" style="top:1%; right:8%;">
+            <h1>Wellesley College Mattila Lab</h1>
+            <h2>Research Assistant</h2>
+            <i>September 2025 - Present</i><br><br>
+            Developed research methods on Southern Giant Hornets <br>
+            Collaborated with teammates
+            </div>
+
+            <div class="text-center parallax-text" style="top:16%; left:6%;">
+            <h1>University of Chicago Gilad Lab</h1>
+            <h2>Cell Biology Intern</h2>
+            <i>June 2025 - August 2025</i><br><br>
+            Reprogrammed LCLs and worked with Feeders and Feeder-frees (hiPSCs) <br>
+            Formed HDCs for use in drug trials
+            </div>
+
+            <div class="text-center parallax-text" style="top:31%; right:6%;">
+            <h1>Wellesley College Kim Lab</h1>
+            <h2>Research Assistant</h2>
+            <i>Jun 2024 - December 2024</i><br><br>
+            Performed data analysis on linguistics data and presented findings <br>
+            Coded, disseminated, and analyzed results from a socio-linguistics experiment
+            </div>
+
+            <div class="text-center parallax-text" style="top:46%; left:6%;">
+            <h1>Super Summer Sports Camp</h1>
+            <h2>Camp Counselor</h2>
+            <i>June 2023 - July 2023</i><br><br>
+            Managed a group of children and their conflicts <br>
+            Taught children to play various sports <br>
+            </div>
+
+            <div class="text-center parallax-text" style="top:61%; right:6%;">
+            <h1>Hyde Park Refugee Camp</h1>
+            <h2>Camp Counselor</h2>
+            <i>Summers 2018 - 2022</i><br><br>
+            Helped ESL children participate in various activities such as math, reading, and sports <br>
+            Made snacks and meals for campers <br>
+            </div>
+
+            <div class="text-center parallax-text" style="top:76%; left:6%;">
+            <h1>University of Chicago Jai Yu Lab</h1>
+            <h2>Data Science Intern</h2>
+            <i>June 2021 - August 2021</i><br><br>
+            Contributed to a paper: M. Awh, K. Latimer, N. Zhou, Z. Leveroni, A. Poon, Z. Stephens, and J. Yu. “Persistent
+Impact of Prior Experience on Spatial Learning.” eNeuro 11, no. 9 (2024).<a href="https://doi.org/10.1523/ENEURO.0266-24.2024">https://doi.org/10.1523/ENEURO.0266-24.2024</a>
+. <br>
+            Performed exploratory data analysis on raw data and videos of rat behavior in mazes <br>
+            </div>
+        </div>
+
+
+        </div>
+        <div class="text-block"><h1 id="Projects">Projects</h1></div>
+        <div class="bg-res-pro">
+            <div class="row text-center" style="display: flex;">
+                <div class="col text-center" style="justify-content: center; background-color: black; opacity: 80%; margin:3vw">
+                    <h1>Spreadsheet Coding Project</h1>
+                    <p>Wellesley College<br>
+                        <i>Google Sheets, Google Apps Script, Python</i><br>
+                        Utilized webscraping and scripts to create a google sheet template with capabilities useful for Wellesley College four-year planning
+                    </p>
+                </div>
+                <div class="col text-center" style="justify-content: center; background-color: black; opacity: 80%; margin:3vw">
+                    <h1>Cipher Computing Project</h1>
+                    <p>Chicago, IL<br>
+                        <i>JupyterLab, Python</i><br>
+                        Used programming and cipher knowledge to explore various algorithms for solving ciphers such as aristocrat, patristocrat, baconian, and vigenere
+                    </p>
+                </div>
         </div>
         
 
-        <div class="row" style="padding-left:10px">
-            <div id="Education" class="col resume-item">
-                <h1 style="margin-left:8px">Education</h1>
-                <br>
+        <div class="text-block"><h1 id="Skills">Skills</h1></div>
+
+        <div class="bg-res-ski" style="padding-bottom:200px;">
+            <div class="text-center parallax-text" style="top:10%; right:10%;">
+                <h1>Programming Languages</h1>
+                Python, Java, R, HTML, CSS, Racket, Plait, Google Apps Script
             </div>
-            <div class="col-lg-6 col-sm-10">
-                <h2>Wellesley College </h2>
-                <i>expected graduation 2027</i>
-                <br><br>
-                <h2>University of Chicago Laboratory Schools</h2>
-                <i>graduated 2023</i>
+            <div class="text-center parallax-text" style="top:25%; left:6%;">
+                <h1>Software</h1>
+                Github, Terminal, VSCode, Google Suite, Microsoft Suite, PyCharm, JupyterLab, RStudio, BlueJ
             </div>
-        </div>
-        <div class="row" style="margin-top:56px; padding-left:10px">
-            <div id="Experience" class="col resume-item">
-                <div>
-                    <h1 style="margin-left:8px">Experience</h1> <br>
-                    <div class="text-center">
-                        <img alt="Poster Session 2024" src="pics/summer2024.jpg" style="width: 80%;">
-                        <br>Wellesley Summer Research Poster Session, July 2024
-                        <div style="font-size: 12;">Left to right: Ava Gessner, Marietta Lochner DeCastro, Zoe Stephens (me), Cameryn Sarros, Lillian Phillips</div><br>
-                </div>
-                </div>
-                
-                
+            <div class="text-center parallax-text" style="top:60%; right:6%;">
+                <h1>Scientific and Laboratory</h1>
+                Research, scientific writing, pipetting, diluting, preparing sample slides, using a compound microscope, dissecting, caring for human-line cells (LCLs, Feeders, iPSCs), reprogramming LCLs, forming HDCs
             </div>
-            <div class="col-lg-6 col-sm-10">
-                <div style="padding-right:6vw">
-                    <h2>Biology Research Assistant</h2>
-                <i>September 2025 - Present</i><br>
-                <ul>
-                    <li>Developed research methods on Southern Giant Hornets</li>
-                    <li>Collaborated with teammates</li>
-                </ul>
-                <br>
-                <h2>Varsity Student-Athlete</h2>
-                <i>August 2023 - Present</i>
-                <ul><li>Played center-back on the Wellesley Varsity Soccer team</li>
-                    <li>Earned Academic All-District Team in 2024</li>
-                <li>Created connections between players and fostered a sense of team community</li></ul>
-                <br>
-                <h2>Cell Biology Intern</h2>
-                <i>June 2025 - August 2025</i>
-                <ul>
-                    <li>Worked with LCLs, Feeders, and Feeder-frees (iPSCs)</li>
-                    <li>Learned reprogramming, HDC formation, and general lab skills</li>
-                </ul>
-                <br>
-                <h2>Linguistics Research Assistant</h2>
-                <i>June 2024 - December 2024</i>
-                <ul>
-                    <li>Performed data analysis on linguistics data and presented findings</li>
-                    <li>Coded, disseminated, and analyzed results from a linguistics experiment</li>
-                    <li>Presented findings at Wellesley Summer Research Poster Session and Chicago Linguistics Society (CLS) 61</li>
-                </ul>
-                <br>
-                <h2>Camp Counselor</h2>
-                <i>Summers 2018 - 2022</i>
-                <ul>
-                    <li>Guided ESL refugee children to participate in various activities such as math, reading, and sports</li>
-                    <li>Helped prepare snacks and meals for campers</li>
-                </ul>
-                <br>
-                <h2>Data Science Intern</h2>
-                <i>June 2021 - August 2021</i>
-                <ul>
-                    <li>Performed exploratory data analysis on raw data and videos of rat behavior in various mazes</li>
-                    <li>Contributed to a paper: <a href="https://doi.org/10.1523/ENEURO.0266-24.2024">“Persistent Impact of Prior Experience on Spatial Learning.”</a></li>
-                </ul>
-            </div>
-                </div>
-                
-        </div>
-        <div class="row" style="margin-top:56px; padding-left:10px">
-            <div id="Projects" class="col resume-item">
-                <h1 style="margin-left:8px">Projects</h1>
-            </div>
-            <div class="col-lg-6 col-sm-10">
-                <div style="padding-right:6vw">
-                    <h2>Four-year Planning Spreadsheet</h2>
-                    <p>Utilized web scraping and coding to create a google sheet with capabilities useful for four year planning</p>
-                    <br>
-                    <h2>Summer Cipher-based Computing</h2>
-                    <p>Used programming and cipher knowledge to explore various algorithms for solving various types of ciphers</p>
-                </div>
-                
+            <div class="text-center parallax-text" style="top:73%; left:20%;">
+                <h1>Language</h1>
+                Conversational Mandarin
             </div>
         </div>
-        <div class="row" style="margin-top:56px; padding-left:10px">
-            <div id="Skills" class="col resume-item">
-                <h1 style="margin-left:8px">Skills</h1>
-                <img class="text-center" src="pics/daphnid.jpeg" alt="daphnid under microscope" style="width:80%; max-width: 400px;">
-                <br>Daphnid under microscope, 2024
-                <br><br>
-            </div>
-            <div class="col-lg-6 col-sm-11">
-                <div style="padding-right:6vw">
-                    <h2>Coding</h2>
-                    <ul>
-                        <li><i><b>Languages:</b></i> Python (Matplotlib, Numpy, Pandas), Java, HTML, CSS, Racket, Plait, R, Google Apps Script</li>
-                        <li><i><b>IDEs:</b></i> VSCode, JupyterLab, BlueJ, PyCharm, RStudio</li>
-                        <li><i><b>Other:</b></i> Github, Terminal, Google Suite, Word, Excel, PCIbex</li>
-                    </ul>
-                    <br>
-                    <h2>Laboratory Skills</h2>
-                    <ul>
-                        <li><i><b>Cell-related:</b></i> HDC formation, cryopreserving lines, waking up lines, passaging lines, LCL reprogramming</li>
-                        <li><i><b>General:</b></i> Pipetting, diluting, preparing sample slides, using a compound microscope, dissecting</li>
-                    </ul>
-                    <br>
-                    <h2>General Scientific Skills</h2>
-                    <p>Research, reading scientific papers, scientific writing</p>
-                    <br>
-                    <h2>Language</h2>
-                    <p>Conversational Mandarin</p>
-                </div>
-                
-            </div>
-        </div>
-        
+
 
         <p class="copyright">Copyright ©2025 Zoe Stephens</p>
         

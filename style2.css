@@ -22,9 +22,9 @@ html {scroll-behavior: smooth;}
 .bg-home{min-height: 640px;background-image: url('pics/p1.jpg');}
 .bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');}
 .bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');}
-.bg-res-exp{min-height: 2000px;background-image:url('pics/summer2024.jpg')}
-.bg-res-pro{min-height: 400px;}
-.bg-res-ski{min-height: 400px;}
+.bg-res-exp{min-height: 1600px;background-image:url('pics/summer2024.jpg')}
+.bg-res-pro{background-color: gray;}
+.bg-res-ski{min-height: 500px;background-image: url('pics/daphnid.jpeg');}
 
 
 .text-block{
@@ -93,18 +93,10 @@ scroll-margin-top: 80px;
 scroll-margin-top: 80px;
 }
 
-#Education {
-scroll-margin-top: 80px;
+#Education, #Experience, #Projects, #Skills {
+scroll-margin-top: 56px;
 }
-#Experience {
-scroll-margin-top: 80px;
-}
-#Projects {
-scroll-margin-top: 80px;
-}
-#Skills {
-scroll-margin-top: 80px;
-}
+
 
 body{
     font-family: "Elms Sans";
