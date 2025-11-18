@@ -23,7 +23,7 @@ html {scroll-behavior: smooth;}
 .bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');}
 .bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');}
 .bg-res-exp{min-height: 1600px;background-image:url('pics/summer2024.jpg')}
-.bg-res-pro{background-color: gray;}
+.bg-res-pro{background-image:url('pics/code.png')}
 .bg-res-ski{min-height: 500px;background-image: url('pics/daphnid.jpeg');}
 
 
@@ -164,7 +164,7 @@ h2{font-weight:200;}
 
 
 .copyright{
-    height: 40px;
+    height: 43px;
     background-color: var(--nav-color);
     color: var(--nav-text-color);
     align-content: center;
