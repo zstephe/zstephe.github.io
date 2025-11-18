@@ -26,6 +26,8 @@ html {scroll-behavior: smooth;}
 .bg-res-pro{background-image:url('pics/code.png')}
 .bg-res-ski{min-height: 500px;background-image: url('pics/daphnid.jpeg');}
 
+.bg-cla-cs{background-image: url('pics/code.png');}
+
 
 .text-block{
     display:flex;
@@ -80,19 +82,9 @@ a:hover{color:#828282;}
     border-top:2px solid white;
 }
 
-#ComputerScience {
+#ComputerScience, #Biology, #Math, #CognitiveScience{
 scroll-margin-top: 80px;
 }
-#Biology {
-scroll-margin-top: 80px;
-}
-#Math {
-scroll-margin-top: 80px;
-}
-#CognitiveScience {
-scroll-margin-top: 80px;
-}
-
 #Education, #Experience, #Projects, #Skills {
 scroll-margin-top: 56px;
 }
