@@ -13,6 +13,7 @@ html {scroll-behavior: smooth;}
 
 
 .bg-home,.bg-pub, .bg-res-edu,.bg-res-exp,.bg-res-pro,.bg-res-ski {
+  /* The image used */ 
   /* Set a specific height */
   /* Create the parallax scrolling effect */
     background-attachment: fixed;
@@ -20,6 +21,7 @@ html {scroll-behavior: smooth;}
     background-repeat: no-repeat;
     background-size: cover;
 
+    position: relative;
 }
 
 
