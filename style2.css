@@ -5,21 +5,28 @@
 
 html {scroll-behavior: smooth;}
 
+.nav-item{margin-top:0;margin-bottom: 0;margin-left: 5px;background-color: black;width:100px;padding-left: 10px;}
+
+.dropdown{right:0;}
+
+
+
+
 .bg-home,.bg-pub, .bg-res-edu,.bg-res-exp,.bg-res-pro,.bg-res-ski {
-  /* The image used */ 
-    width: 100%;
   /* Set a specific height */
   /* Create the parallax scrolling effect */
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    position: relative;
+
 }
+
+
 
 .bg-home, .bg-pub, .bg-res-edu {margin-top: 56px;}
 
-.bg-home{min-height: 640px;background-image: url('pics/p1.jpg');}
+.bg-home{min-height: 80vh;background-image: url('pics/p1.jpg');}
 .bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');}
 .bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');}
 .bg-res-exp{min-height: 1600px;background-image:url('pics/summer2024.jpg')}
