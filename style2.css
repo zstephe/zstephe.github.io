@@ -1,3 +1,8 @@
+/* LOOK INTO WHY THE NAVBAR ELEMS ARE NOT EVENLY SPACED
+ALSO WHY WILL MY IMAGE NOT SIZE CORRECTLY ON PARALLAX IT HATES ME
+ALSO LOOK AT SIZING OF ITEMS ON RESUME PAGE AND MAKE THEM WORK ON MOBILE*/
+
+
 :root {
     --nav-color:black;
     --nav-text-color:white;
@@ -7,9 +12,14 @@ html {scroll-behavior: smooth;}
 
 .nav-item{margin-top:0;margin-bottom: 0;margin-left: 5px;background-color: black;width:100px;padding-left: 10px;}
 
-.dropdown{right:0;}
 
-
+/* Setting up the margins on the resume exp cols */
+.left{margin-top:2%;}
+.right{margin-top:16.5%;}
+@media screen and (max-width:991px){
+    .left{margin-top:4.75%}
+    .right{margin-top:4.75%}
+}
 
 
 .bg-home,.bg-pub, .bg-res-edu,.bg-res-exp,.bg-res-pro,.bg-res-ski {
@@ -53,9 +63,15 @@ html {scroll-behavior: smooth;}
     background-color: black;
     color:white;
     padding:10px;
-    background: rgba( 0, 0, 0, 0.8 );
-    backdrop-filter: blur(10px);
+    
+    
     max-width: 35vw;
+}
+
+.p-text2{
+    background: rgba( 0, 0, 0, 0.8 );
+    padding:10px;
+    backdrop-filter: blur(10px);
 }
 
 .blur{
