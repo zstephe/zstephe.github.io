@@ -10,7 +10,7 @@ ALSO LOOK AT SIZING OF ITEMS ON RESUME PAGE AND MAKE THEM WORK ON MOBILE*/
 
 html {scroll-behavior: smooth;}
 
-.nav-item{margin-top:0;margin-bottom: 0;margin-left: 5px;background-color: black;width:100px;padding-left: 10px;}
+.nav-item{margin-top:0;margin-bottom: 0;background-color: black;padding-left: 10px;}
 
 
 .bg-home,.bg-pub, .bg-res-edu,.bg-res-exp,.bg-res-pro,.bg-res-ski {
@@ -21,16 +21,14 @@ html {scroll-behavior: smooth;}
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-
-    position: relative;
 }
 
 
 
 .bg-home, .bg-pub, .bg-res-edu {margin-top: 56px;}
 
-.bg-home{min-height: 80vh;background-image: url('pics/p1.jpg');}
-.bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');}
+.bg-home{min-height: 45vw;background-image: url('pics/p1.jpg');background-size: 100% auto;background-position: center 56px;}
+.bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');background-position: right 56px;}
 .bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');}
 .bg-res-exp{min-height: 1600px;background-image:url('pics/summer2024.jpg')}
 .bg-res-pro{background-image:url('pics/code.png')}
