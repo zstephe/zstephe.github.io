@@ -20,19 +20,19 @@ html {scroll-behavior: smooth;}
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: 100% auto;
 }
 
 
 
 .bg-home, .bg-pub, .bg-res-edu {margin-top: 56px;}
 
-.bg-home{min-height: 45vw;background-image: url('pics/p1.jpg');background-size: 100% auto;background-position: center 56px;}
+.bg-home{min-height: 45vw;background-image: url('pics/p1.jpg');background-position: center 56px;}
 .bg-pub{min-height: 640px;background-image: url('pics/pub.jpeg');background-position: right 56px;}
-.bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');}
-.bg-res-exp{min-height: 1600px;background-image:url('pics/summer2024.jpg')}
+.bg-res-edu{min-height: 500px;background-image:url('pics/wellesley.png');background-position: center 56px;}
+.bg-res-exp{min-height: 1600px;background-image:url('pics/summer2024.jpg');background-position: center 0;}
 .bg-res-pro{background-image:url('pics/code.png')}
-.bg-res-ski{min-height: 550px;background-image: url('pics/daphnid.jpeg');}
+.bg-res-ski{min-height: 550px;background-image: url('pics/daphnid.jpeg');background-position: center -190px;}
 
 
 /* Setting up the margins on the resume exp cols */
