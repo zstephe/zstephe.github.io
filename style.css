@@ -61,7 +61,7 @@ html {scroll-behavior: smooth;}
 
 .parallax-text {
     position: absolute;
-    background-color: black;
+    background-color: lightblue;
     color:white;
     padding:10px;
     
@@ -70,7 +70,7 @@ html {scroll-behavior: smooth;}
 }
 
 .p-text2{
-    background: rgba( 0, 0, 0, 0.8 );
+    background: lightblue;/*rgba( 0, 0, 0, 0.8 );*/
     padding:10px;
     backdrop-filter: blur(10px);
 }
@@ -119,7 +119,7 @@ scroll-margin-top: 56px;
 body{
     font-family: "Elms Sans";
     font-weight: 200;
-    background-color: black;
+    background-color: lightblue;
     color:white;
 }
 
