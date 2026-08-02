@@ -5,10 +5,10 @@ ALSO LOOK AT SIZING OF ITEMS ON RESUME PAGE AND MAKE THEM WORK ON MOBILE*/
 
 :root {
     --bg-color:#D4D9C7;
-    --accent-color:#BFAC93;/*#CCC7D9;#C7D4D9;*/
+    --accent-color:#B3A189;/*#CCC7D9;#C7D4D9;*/
     --dark-accent-color:#9C8D79;
     --text-color:black;
-    --nav-color:#B5BAA9;
+    --nav-color:#B0B89C;
     --nav-text-color:black;
 }
 
