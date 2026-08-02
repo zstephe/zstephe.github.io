@@ -51,7 +51,7 @@ html {scroll-behavior: smooth;}
 
 .text-block{
     display:flex;
-    background-color: black;
+    background-color: lightcyan;
     color:white;
     min-height:10vw;
     justify-content: center;
